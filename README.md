@@ -6,7 +6,7 @@ Aplicación full-stack con backend Django REST Framework y frontend React Native
 
 ```
 P2/
-├── AutoCon/           # Backend Django
+├── autocon-server/           # Backend Django
 └── autocon-mobile/    # Frontend React Native
 ```
 
@@ -29,7 +29,7 @@ cd autocon
 ### 2. Setup del Backend (Django)
 
 ```bash
-cd AutoCon
+cd autocon-server
 
 # Crear entorno virtual
 python -m venv venv
