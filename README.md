@@ -6,7 +6,7 @@ Aplicación full-stack con backend Django REST Framework y frontend React Native
 
 ```
 P2/
-├── AutoCon/           # Backend Django
+├── autocon-server/           # Backend Django
 └── autocon-mobile/    # Frontend React Native
 ```
 
@@ -29,7 +29,7 @@ cd autocon
 ### 2. Setup del Backend (Django)
 
 ```bash
-cd AutoCon
+cd autocon-server
 
 # Crear entorno virtual
 python -m venv venv
@@ -110,7 +110,121 @@ const API_URL = 'http://TU_IP_LOCAL:8000';
 ### Backend API
 
 - `GET /users/test/` - Endpoint de prueba
+- `GET /formats/` - Lista de formatos disponibles
+- `GET /formats/{id}/` - Detalle de un formato específico
 - `GET /admin/` - Panel de administración de Django
+
+## Agregar Nuevos Formatos
+
+Para agregar un nuevo formato de inspección a la base de datos:
+
+### 1. Migrar el Modelo
+
+Asegúrate de que las migraciones del modelo `Format` estén aplicadas:
+
+```bash
+cd autocon-server
+python manage.py makemigrations formats
+python manage.py migrate
+```
+
+### 2. Crear Formato en Django Admin
+
+1. Inicia el servidor: `python manage.py runserver`
+2. Accede a `http://localhost:8000/admin`
+3. Inicia sesión con tu superusuario
+4. Ve a la sección **Formats** y haz clic en **Add Format**
+5. Completa los campos:
+   - **Nombre**: Nombre descriptivo del formato (ej: "Inspección de Soldadura")
+   - **Schema**: Pega el JSON del schema (ver ejemplo abajo)
+
+### 3. Schema de Ejemplo
+
+El formato debe seguir esta estructura JSON:
+
+```json
+{
+  "secciones": [
+    {
+      "id": "general",
+      "titulo": "Información General",
+      "campos": [
+        {
+          "id": "contrato",
+          "tipo": "texto",
+          "label": "N° Contrato",
+          "requerido": true
+        },
+        {
+          "id": "fecha",
+          "tipo": "fecha",
+          "label": "Fecha de inspección",
+          "requerido": true
+        }
+      ]
+    },
+    {
+      "id": "checklist",
+      "titulo": "Verificación",
+      "campos": [
+        {
+          "id": "soldadura",
+          "tipo": "aprobacion",
+          "label": "Estado de soldaduras"
+        },
+        {
+          "id": "pintura",
+          "tipo": "aprobacion",
+          "label": "Recubrimiento anticorrosivo"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Tipos de campos soportados:
+
+- **`texto`**: Campo de texto libre
+  ```json
+  { "id": "observaciones", "tipo": "texto", "label": "Observaciones" }
+  ```
+
+- **`numero`**: Campo numérico
+  ```json
+  { "id": "cantidad", "tipo": "numero", "label": "Cantidad de unidades" }
+  ```
+
+- **`fecha`**: Selector de fecha (formato YYYY-MM-DD)
+  ```json
+  { "id": "fecha", "tipo": "fecha", "label": "Fecha de inspección" }
+  ```
+
+- **`aprobacion`**: Botones de Aprobado/No aprobado
+  ```json
+  { "id": "soldadura", "tipo": "aprobacion", "label": "Estado de soldaduras" }
+  ```
+
+- **`seleccion`**: Opciones múltiples (requiere propiedad `opciones`)
+  ```json
+  { 
+    "id": "estado", 
+    "tipo": "seleccion", 
+    "label": "Estado del equipo",
+    "opciones": ["Nuevo", "Usado", "Reparado"]
+  }
+  ```
+
+- **`aprobacion_doble`**: Múltiples ítems con aprobación para cada uno (requiere propiedad `revisiones`, opcionalmente `observacion`)
+  ```json
+  { 
+    "id": "checklist_seguridad", 
+    "tipo": "aprobacion_doble", 
+    "label": "Lista de verificación",
+    "revisiones": ["EPP completo", "Señalización presente", "Zona acordonada"],
+    "observacion": true
+  }
+  ```
 
 ## Tecnologías
 
