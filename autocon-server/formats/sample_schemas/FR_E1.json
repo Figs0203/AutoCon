@@ -1,0 +1,284 @@
+{
+  "formulario": "FR-E1",
+  "version": "1",
+  "secciones": [
+    {
+      "id": "general",
+      "titulo": "Información General",
+      "campos": [
+        {
+          "id": "obra",
+          "tipo": "texto",
+          "label": "Obra",
+          "requerido": true
+        },
+        {
+          "id": "codigo_plano",
+          "tipo": "texto",
+          "label": "Código Plano",
+          "requerido": true
+        },
+        {
+          "id": "fecha_vaciado",
+          "tipo": "fecha",
+          "label": "Fecha de Vaciado",
+          "requerido": true
+        },
+        {
+          "id": "ubicacion",
+          "tipo": "texto",
+          "label": "Ubicación",
+          "requerido": true
+        },
+        {
+          "id": "tipo_elemento",
+          "tipo": "seleccion",
+          "label": "Tipo de Elemento",
+          "opciones": ["COLUMNA", "MURO", "OTRO"],
+          "requerido": true
+        }
+      ]
+    },
+    {
+      "id": "ubicacion_dimensiones",
+      "titulo": "Ubicación y Dimensiones",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "trazado_ejes",
+          "tipo": "aprobacion_doble",
+          "label": "Trazado de ejes",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "dimensiones",
+          "tipo": "aprobacion_doble",
+          "label": "Dimensiones",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    },
+    {
+      "id": "acero",
+      "titulo": "Acero de Refuerzo",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "cantidad",
+          "tipo": "aprobacion_doble",
+          "label": "Cantidad",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "longitud",
+          "tipo": "aprobacion_doble",
+          "label": "Longitud",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "diametro",
+          "tipo": "aprobacion_doble",
+          "label": "Diámetro",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "separacion_barras",
+          "tipo": "aprobacion_doble",
+          "label": "Separación entre barras",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "traslapos",
+          "tipo": "aprobacion_doble",
+          "label": "Traslapos",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "amarre_acero",
+          "tipo": "aprobacion_doble",
+          "label": "Amarre de acero",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "limpieza_acero",
+          "tipo": "aprobacion_doble",
+          "label": "Limpieza del acero",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "recubrimientos",
+          "tipo": "aprobacion_doble",
+          "label": "Recubrimientos",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "pases_estructural",
+          "tipo": "aprobacion_doble",
+          "label": "Pases Ing. Estructural",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    },
+    {
+      "id": "obra_falsa",
+      "titulo": "Obra Falsa",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "calidad_equipo",
+          "tipo": "aprobacion_doble",
+          "label": "Calidad del equipo",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "arriostramiento",
+          "tipo": "aprobacion_doble",
+          "label": "Arriostramiento",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "nivelacion",
+          "tipo": "aprobacion_doble",
+          "label": "Nivelación",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "estabilidad",
+          "tipo": "aprobacion_doble",
+          "label": "Estabilidad",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "limpieza_obra",
+          "tipo": "aprobacion_doble",
+          "label": "Limpieza",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    },
+    {
+      "id": "otras_variables",
+      "titulo": "Otras Variables",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "verificacion_redes",
+          "tipo": "aprobacion_doble",
+          "label": "Verificación de redes",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "pases",
+          "tipo": "aprobacion_doble",
+          "label": "Pases",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "elementos_embebidos",
+          "tipo": "aprobacion_doble",
+          "label": "Elementos embebidos",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    },
+    {
+      "id": "vaciado",
+      "titulo": "Vaciado de Concreto",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "fc_diseno",
+          "tipo": "aprobacion_doble",
+          "label": "F'c de diseño",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "nivel_vaciado",
+          "tipo": "aprobacion_doble",
+          "label": "Nivel de vaciado",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "tratamiento_juntas",
+          "tipo": "aprobacion_doble",
+          "label": "Tratamiento de juntas",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "asentamiento_mezcla",
+          "tipo": "aprobacion_doble",
+          "label": "Asentamiento de la mezcla",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "vibrado",
+          "tipo": "aprobacion_doble",
+          "label": "Vibrado",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "acabado",
+          "tipo": "aprobacion_doble",
+          "label": "Acabado",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        },
+        {
+          "id": "control_fraguado",
+          "tipo": "aprobacion_doble",
+          "label": "Control de fraguado inicial",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    },
+    {
+      "id": "posteriores",
+      "titulo": "Posteriores al Vaciado",
+      "tipo": "checklist",
+      "campos": [
+        {
+          "id": "curado_concreto",
+          "tipo": "aprobacion_doble",
+          "label": "Curado del concreto",
+          "revisiones": ["1ra Revisión", "2da Revisión"],
+          "observacion": true
+        }
+      ]
+    }
+  ],
+  "firmas": [
+    {
+      "id": "constructor",
+      "label": "Constructor"
+    },
+    {
+      "id": "supervisor",
+      "label": "Supervisor"
+    }
+  ]
+}
