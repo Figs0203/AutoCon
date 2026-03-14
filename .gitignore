@@ -41,3 +41,10 @@ app-example
 # generated native folders
 /ios
 /android
+
+**/__pycache__/
+*.pyc
+db.sqlite3
+venv/
+.env
+node_modules/

@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-import axios from "axios";
+import axios from "axios"; // <- No es necesario usar axios, ya tenemos apiService
 import styles from "../src/styles/global";
 import { Formato } from "../src/types";
 import { router } from "expo-router";
-import { API_URL } from "../src/config/ApiServices";
+//import { API_URL } from "../src/config/ApiServices";
+import { getFormats } from "../src/config/ApiServices";
 
 
 export default function Formatos() {
   const [formatos, setFormatos] = useState<Formato[]>([]);
 
   useEffect(() => {
-    axios.get(`${API_URL}/formats/`).then(res => setFormatos(res.data));
+    //axios.get(`${API_URL}/formats/`).then(res => setFormatos(res.data));
+    getFormats().then(data => setFormatos(data));
   }, []);
 
   return (

@@ -1,15 +1,13 @@
 // Configuración de la API
-export const API_URL = "http://127.0.0.1:8000/api";
+export const API_URL = "http://192.168.40.12:8000";
 
-//const BASE_URL = 'http://192.168.40.11:8080/api'; aqui no se cual de las dos es
-const BASE_URL = "http://127.0.0.1:8000/api";
 const ENDPOINTS = {
     FORMATS: '/formats',
 };
 
 
 export const httpService = async (endpoint, method, body = null) => {
-    const url = `${BASE_URL}${endpoint}`;
+    const url = `${API_URL}${endpoint}`;
 
     const response = await fetch(url, {
         method,
@@ -27,3 +25,13 @@ export const httpServicePost = (endpoint, body) => httpService(endpoint, 'POST',
 
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
 export const submitFormat = (formatData) => httpServicePost(ENDPOINTS.FORMATS, formatData); 
+
+export const getForms = () => httpServiceGet(ENDPOINTS.FORMS);
+export const submitForm = (formatData) => {
+
+    request = {
+        formato: 1,
+        datos: formatData,
+    }
+    httpServicePost(ENDPOINTS.FORMS, request)
+}

@@ -1,8 +1,5 @@
 from django.db import models
-
-# Create your models here.
 from django.contrib.auth.models import User
-
 
 class FormatoTecnico(models.Model):
     #Plantilla del formulario técnico (la define el developer).
@@ -15,7 +12,7 @@ class FormatoTecnico(models.Model):
         return f"{self.codigo} — {self.nombre}"
 
 
-class Diligenciamiento(models.Model):
+class FormularioInstancia(models.Model):
     #Cada vez que un usuario llena un formato.
     BORRADOR  = "borrador"
     ENVIADO   = "enviado"
@@ -32,17 +29,5 @@ class Diligenciamiento(models.Model):
     fecha     = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.formato.codigo} — {self.usuario.username} — {self.estado}"
-
-
-'''class Adjunto(models.Model):
-    #Fotos y firmas de un diligenciamiento.
-    diligenciamiento = models.ForeignKey(Diligenciamiento, on_delete=models.CASCADE, related_name="adjuntos")
-    campo_id         = models.CharField(max_length=100)   # a qué campo pertenece
-    archivo          = models.ImageField(upload_to="adjuntos/")
-
-    def __str__(self):
-        return f"Adjunto campo={self.campo_id}"
-        
-        
-        # PARA FUTURA IMPLEMENTACIÓN: Si queremos guardar archivos PDF u otro tipo, podríamos usar FileField en lugar de ImageField.'''
+        #return f"{self.formato.codigo} — {self.usuario.username} — {self.estado}"
+        return f"{self.formato.codigo} — {self.estado}"
