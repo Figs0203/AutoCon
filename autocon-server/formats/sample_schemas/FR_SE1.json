@@ -1,0 +1,71 @@
+ {
+    "formulario": "FR-SE1",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "obra", "tipo": "texto", "label": "Obra", "requerido": true},
+                {"id": "ubicacion_pila", "tipo": "texto", "label": "Ubicación Pila y No.", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión de Plano con que se Revisa", "requerido": true},
+                {"id": "fecha_inicio", "tipo": "fecha", "label": "Fecha de Inicio Excavación", "requerido": true},
+                {"id": "fecha_terminacion", "tipo": "fecha", "label": "Fecha de Terminación Excavación", "requerido": true},
+                {"id": "metodo_excavacion", "tipo": "texto", "label": "Método de Excavación", "requerido": true}
+            ]
+        },
+        {
+            "id": "descripcion",
+            "titulo": "1. Descripción Actividad a Revisar",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "tipo_pila", "tipo": "aprobacion_con_fecha", "label": "Tipo Pila", "observacion": true},
+                {"id": "cota_superior", "tipo": "aprobacion_con_fecha", "label": "Cota Superior", "observacion": true},
+                {"id": "cota_inferior", "tipo": "aprobacion_con_fecha", "label": "Cota Inferior", "observacion": true},
+                {"id": "altura_fuste", "tipo": "aprobacion_con_fecha", "label": "Altura Fuste", "observacion": true},
+                {"id": "diametro_fuste", "tipo": "aprobacion_con_fecha", "label": "Diámetro Fuste + Anillo", "observacion": true},
+                {"id": "diametro_campana", "tipo": "aprobacion_con_fecha", "label": "Diámetro Campana", "observacion": true},
+                {"id": "altura_pata_campana", "tipo": "aprobacion_con_fecha", "label": "Altura Pata Campana", "observacion": true},
+                {"id": "longitud_pila", "tipo": "aprobacion_con_fecha", "label": "Longitud de la Pila", "observacion": true},
+                {"id": "volumen_teorico", "tipo": "aprobacion_con_fecha", "label": "Volumen Teórico Pila", "observacion": true},
+                {"id": "volumen_real", "tipo": "aprobacion_con_fecha", "label": "Volumen Real Excavación", "observacion": true}
+            ]
+        },
+        {
+            "id": "coordenadas",
+            "titulo": "Coordenadas",
+            "campos": [
+                {"id": "coord_norte", "tipo": "numero", "label": "Coordenada Norte", "requerido": false},
+                {"id": "coord_este", "tipo": "numero", "label": "Coordenada Este", "requerido": false},
+                {"id": "rechequeo_norte", "tipo": "numero", "label": "Rechequeo Coordenada Norte (a 1m profundidad)", "requerido": false},
+                {"id": "rechequeo_este", "tipo": "numero", "label": "Rechequeo Coordenada Este (a 1m profundidad)", "requerido": false}
+            ]
+        },
+        {
+            "id": "novedades",
+            "titulo": "2. Novedades Encontradas Durante la Excavación",
+            "campos": [
+                {"id": "novedad_1", "tipo": "novedad", "label": "Novedad 1", "requerido": false},
+                {"id": "novedad_2", "tipo": "novedad", "label": "Novedad 2", "requerido": false},
+                {"id": "novedad_3", "tipo": "novedad", "label": "Novedad 3", "requerido": false},
+                {"id": "novedad_4", "tipo": "novedad", "label": "Novedad 4", "requerido": false},
+                {"id": "novedad_5", "tipo": "novedad", "label": "Novedad 5", "requerido": false}
+            ]
+        },
+        {
+            "id": "conformidad",
+            "titulo": "3. Conformidad del Producto",
+            "campos": [
+                {"id": "item_no_conforme_1", "tipo": "no_conformidad", "label": "No Conformidad 1", "requerido": false},
+                {"id": "item_no_conforme_2", "tipo": "no_conformidad", "label": "No Conformidad 2", "requerido": false},
+                {"id": "item_no_conforme_3", "tipo": "no_conformidad", "label": "No Conformidad 3", "requerido": false},
+                {"id": "fecha_liberacion", "tipo": "fecha", "label": "Fecha Liberación No Conformidad", "requerido": false}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "constructor", "label": "Constructor"},
+        {"id": "supervisor", "label": "Supervisor"},
+        {"id": "geotecnista", "label": "Responsable Geotecnista"}
+    ]
+}

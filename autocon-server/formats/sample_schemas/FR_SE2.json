@@ -1,0 +1,102 @@
+{
+    "formulario": "FR-SE2",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "obra", "tipo": "texto", "label": "Obra", "requerido": true},
+                {"id": "pila_numero", "tipo": "texto", "label": "Pila #", "requerido": true},
+                {"id": "tipo", "tipo": "texto", "label": "Tipo", "requerido": true},
+                {"id": "fc", "tipo": "numero", "label": "F'C (kg/cm²)", "requerido": true},
+                {"id": "plano", "tipo": "texto", "label": "Plano con que se Revisa", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión del Plano", "requerido": true}
+            ]
+        },
+        {
+            "id": "refuerzo",
+            "titulo": "Refuerzo",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad", "tipo": "aprobacion_con_fecha", "label": "Cantidad", "observacion": true},
+                {"id": "longitud", "tipo": "aprobacion_con_fecha", "label": "Longitud", "observacion": true},
+                {"id": "diametro", "tipo": "aprobacion_con_fecha", "label": "Diámetro", "observacion": true},
+                {"id": "separacion_barras", "tipo": "aprobacion_con_fecha", "label": "Separación entre barras", "observacion": true},
+                {"id": "traslapos", "tipo": "aprobacion_con_fecha", "label": "Traslapos (longitud y ubicación)", "observacion": true},
+                {"id": "conexiones", "tipo": "aprobacion_con_fecha", "label": "Conexiones (si hay uniones mecánicas)", "observacion": true},
+                {"id": "amarre_acero", "tipo": "aprobacion_con_fecha", "label": "Amarre del acero", "observacion": true},
+                {"id": "colocacion_canasta", "tipo": "aprobacion_con_fecha", "label": "Colocación y armado final de canasta en la pila", "observacion": true},
+                {"id": "limpieza_refuerzo", "tipo": "aprobacion_con_fecha", "label": "Limpieza del refuerzo", "observacion": true},
+                {"id": "recubrimiento", "tipo": "aprobacion_con_fecha", "label": "Recubrimiento acero según norma o solicitud de diseño", "observacion": true},
+                {"id": "revision_canasta", "tipo": "aprobacion_con_fecha", "label": "Revisión final de canasta en la pila", "observacion": true}
+            ]
+        },
+        {
+            "id": "concreto",
+            "titulo": "Concreto",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "colocacion_concreto", "tipo": "aprobacion_con_fecha", "label": "Colocación de concreto (embudo o tubo tremie)", "observacion": true},
+                {"id": "nivel_vaciado", "tipo": "aprobacion_con_fecha", "label": "Verificación de nivel de vaciado y recubrimiento", "observacion": true}
+            ]
+        },
+        {
+            "id": "elementos_pila",
+            "titulo": "Elementos de la Pila",
+            "campos": [
+                {"id": "cota_terreno", "tipo": "numero", "label": "Cota Terreno", "requerido": false},
+                {"id": "cota_superior_vf", "tipo": "numero", "label": "Cota Superior VF Pila", "requerido": false},
+                {"id": "cota_superior_vaciado", "tipo": "numero", "label": "Cota Superior Vaciado Pila", "requerido": false},
+                {"id": "longitud_final", "tipo": "numero", "label": "Longitud Final Pila (L)", "requerido": false},
+                {"id": "cota_inferior_campana", "tipo": "numero", "label": "Cota Inferior Campana", "requerido": false},
+                {"id": "nivel_freatico", "tipo": "numero", "label": "Nivel Freático", "requerido": false}
+            ]
+        },
+        {
+            "id": "elementos_diseno",
+            "titulo": "Elementos de Diseño",
+            "campos": [
+                {"id": "altura_pata_campana", "tipo": "numero", "label": "Altura Pata Campana", "requerido": false},
+                {"id": "diam_pata_campana", "tipo": "numero", "label": "Diámetro Pata Campana", "requerido": false},
+                {"id": "diametro_fuste", "tipo": "numero", "label": "Diámetro Fuste Pila", "requerido": false},
+                {"id": "altura_campana", "tipo": "numero", "label": "Altura Campana", "requerido": false},
+                {"id": "altura_fuste", "tipo": "numero", "label": "Altura Fuste", "requerido": false}
+            ]
+        },
+        {
+            "id": "control_volumen",
+            "titulo": "Control Volumen Concreto",
+            "campos": [
+                {"id": "volumen_teorico", "tipo": "numero", "label": "Volumen Teórico", "requerido": false},
+                {"id": "volumen_real", "tipo": "numero", "label": "Volumen Real", "requerido": false},
+                {"id": "porcentaje_desperdicio", "tipo": "numero", "label": "% Desperdicio", "requerido": false}
+            ]
+        },
+        {
+            "id": "novedades",
+            "titulo": "Novedades Durante el Vaciado",
+            "campos": [
+                {"id": "novedad_1", "tipo": "novedad", "label": "Novedad 1", "requerido": false},
+                {"id": "novedad_2", "tipo": "novedad", "label": "Novedad 2", "requerido": false},
+                {"id": "novedad_3", "tipo": "novedad", "label": "Novedad 3", "requerido": false},
+                {"id": "novedad_4", "tipo": "novedad", "label": "Novedad 4", "requerido": false},
+                {"id": "novedad_5", "tipo": "novedad", "label": "Novedad 5", "requerido": false}
+            ]
+        },
+        {
+            "id": "conformidad",
+            "titulo": "3. Conformidad del Producto",
+            "campos": [
+                {"id": "item_no_conforme_1", "tipo": "no_conformidad", "label": "No Conformidad 1", "requerido": false},
+                {"id": "item_no_conforme_2", "tipo": "no_conformidad", "label": "No Conformidad 2", "requerido": false},
+                {"id": "item_no_conforme_3", "tipo": "no_conformidad", "label": "No Conformidad 3", "requerido": false},
+                {"id": "fecha_liberacion", "tipo": "fecha", "label": "Fecha Liberación No Conformidad", "requerido": false}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "constructor", "label": "Constructor (Quien Entrega)"},
+        {"id": "supervisor", "label": "Supervisor (Quien Recibe)"}
+    ]
+}

@@ -1,0 +1,126 @@
+{
+    "formulario": "FR-SE3",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "obra", "tipo": "texto", "label": "Obra", "requerido": true},
+                {"id": "plano", "tipo": "texto", "label": "Plano", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión", "requerido": true},
+                {"id": "fecha_revision", "tipo": "fecha", "label": "Fecha de Revisión", "requerido": true},
+                {"id": "ubicacion_elemento", "tipo": "texto", "label": "Ubicación Elemento", "requerido": true},
+                {"id": "tipo", "tipo": "texto", "label": "Tipo", "requerido": true},
+                {"id": "dimensiones", "tipo": "texto", "label": "Dimensiones (AxB)", "requerido": false},
+                {"id": "fc", "tipo": "numero", "label": "F'c", "requerido": true},
+                {"id": "altura", "tipo": "numero", "label": "Altura (h)", "requerido": false}
+            ]
+        },
+        {
+            "id": "control_fechas",
+            "titulo": "1. Control de Fechas",
+            "campos": [
+                {"id": "excavacion_inicio", "tipo": "fecha", "label": "Excavación - Fecha Inicio", "requerido": false},
+                {"id": "excavacion_fin", "tipo": "fecha", "label": "Excavación - Fecha Finalización", "requerido": false},
+                {"id": "vaciado_fecha", "tipo": "fecha", "label": "Vaciado - Fecha", "requerido": false},
+                {"id": "lleno_inicio", "tipo": "fecha", "label": "Lleno (Material de Reemplazo) - Fecha Inicio", "requerido": false},
+                {"id": "lleno_fin", "tipo": "fecha", "label": "Lleno (Material de Reemplazo) - Fecha Finalización", "requerido": false}
+            ]
+        },
+        {
+            "id": "control_excavacion",
+            "titulo": "2. Control Excavación",
+            "campos": [
+                {"id": "cota_desplante_real", "tipo": "numero", "label": "Cota de Desplante - Real", "requerido": false},
+                {"id": "cota_desplante_diseno", "tipo": "numero", "label": "Cota de Desplante - Diseño", "requerido": false},
+                {"id": "area_sup_ancho_real", "tipo": "numero", "label": "Área Superior Ancho (m) - Real", "requerido": false},
+                {"id": "area_sup_ancho_diseno", "tipo": "numero", "label": "Área Superior Ancho (m) - Diseño", "requerido": false},
+                {"id": "area_sup_largo_real", "tipo": "numero", "label": "Área Superior Largo (m) - Real", "requerido": false},
+                {"id": "area_sup_largo_diseno", "tipo": "numero", "label": "Área Superior Largo (m) - Diseño", "requerido": false},
+                {"id": "area_inf_ancho_real", "tipo": "numero", "label": "Área Inferior Ancho (m) - Real", "requerido": false},
+                {"id": "area_inf_ancho_diseno", "tipo": "numero", "label": "Área Inferior Ancho (m) - Diseño", "requerido": false},
+                {"id": "area_inf_largo_real", "tipo": "numero", "label": "Área Inferior Largo (m) - Real", "requerido": false},
+                {"id": "area_inf_largo_diseno", "tipo": "numero", "label": "Área Inferior Largo (m) - Diseño", "requerido": false},
+                {"id": "h_excavacion", "tipo": "numero", "label": "H. Excavación (m)", "requerido": false},
+                {"id": "prof_nivel_freatico", "tipo": "numero", "label": "Profundidad Nivel Freático (m)", "requerido": false},
+                {"id": "vol_total_excavacion", "tipo": "numero", "label": "Vol. Total Excavación (m³)", "requerido": false},
+                {"id": "proteccion_excavacion", "tipo": "texto", "label": "Protección Excavación (tipo)", "requerido": false},
+                {"id": "tratamiento_fondo", "tipo": "aprobacion_con_fecha", "label": "Tratamiento al fondo de la excavación (solado o reemplazo)", "observacion": true},
+                {"id": "tipo_excavacion", "tipo": "aprobacion_con_fecha", "label": "Tipo de excavación (manual o mecánica)", "observacion": true}
+            ]
+        },
+        {
+            "id": "novedades_excavacion",
+            "titulo": "3. Novedades Durante la Excavación",
+            "campos": [
+                {"id": "novedad_1", "tipo": "novedad", "label": "Novedad 1", "requerido": false},
+                {"id": "novedad_2", "tipo": "novedad", "label": "Novedad 2", "requerido": false},
+                {"id": "novedad_3", "tipo": "novedad", "label": "Novedad 3", "requerido": false},
+                {"id": "novedad_4", "tipo": "novedad", "label": "Novedad 4", "requerido": false},
+                {"id": "novedad_5", "tipo": "novedad", "label": "Novedad 5", "requerido": false}
+            ]
+        },
+        {
+            "id": "control_acero",
+            "titulo": "4. Control Acero",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad", "tipo": "aprobacion_con_fecha", "label": "Cantidad (transversal y longitudinal)", "observacion": true},
+                {"id": "estribos", "tipo": "aprobacion_con_fecha", "label": "Estribos (ganchos)", "observacion": true},
+                {"id": "longitud", "tipo": "aprobacion_con_fecha", "label": "Longitud", "observacion": true},
+                {"id": "diametro", "tipo": "aprobacion_con_fecha", "label": "Diámetro", "observacion": true},
+                {"id": "separacion_barras", "tipo": "aprobacion_con_fecha", "label": "Separación entre barras", "observacion": true},
+                {"id": "traslapos", "tipo": "aprobacion_con_fecha", "label": "Traslapos (longitud y ubicación)", "observacion": true},
+                {"id": "amarre_acero", "tipo": "aprobacion_con_fecha", "label": "Amarre de acero", "observacion": true},
+                {"id": "limpieza_acero", "tipo": "aprobacion_con_fecha", "label": "Limpieza del acero", "observacion": true},
+                {"id": "recubrimientos", "tipo": "aprobacion_con_fecha", "label": "Recubrimientos", "observacion": true}
+            ]
+        },
+        {
+            "id": "arranque_acero",
+            "titulo": "5. Verificación Arranque Acero Columnas y Muros",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad_arranque", "tipo": "aprobacion_con_fecha", "label": "Cantidad", "observacion": true},
+                {"id": "longitud_arranque", "tipo": "aprobacion_con_fecha", "label": "Longitud", "observacion": true},
+                {"id": "diametro_arranque", "tipo": "aprobacion_con_fecha", "label": "Diámetro", "observacion": true},
+                {"id": "ejes_arranque", "tipo": "aprobacion_con_fecha", "label": "Ejes", "observacion": true}
+            ]
+        },
+        {
+            "id": "control_vaciado",
+            "titulo": "6. Control de Vaciado de Concreto",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "altura_vaciado", "tipo": "aprobacion_con_fecha", "label": "Altura de vaciado", "observacion": true},
+                {"id": "volumen_teorico", "tipo": "aprobacion_con_fecha", "label": "Volumen teórico", "observacion": true},
+                {"id": "volumen_real", "tipo": "aprobacion_con_fecha", "label": "Volumen real", "observacion": true},
+                {"id": "colocacion", "tipo": "aprobacion_con_fecha", "label": "Colocación", "observacion": true},
+                {"id": "vibrado_compactacion", "tipo": "aprobacion_con_fecha", "label": "Vibrado y compactación", "observacion": true}
+            ]
+        },
+        {
+            "id": "observaciones",
+            "titulo": "7. Observaciones",
+            "campos": [
+                {"id": "observacion_1", "tipo": "texto", "label": "Observación 1", "requerido": false},
+                {"id": "observacion_2", "tipo": "texto", "label": "Observación 2", "requerido": false},
+                {"id": "observacion_3", "tipo": "texto", "label": "Observación 3", "requerido": false}
+            ]
+        },
+        {
+            "id": "no_conformidades",
+            "titulo": "8. No Conformidades",
+            "campos": [
+                {"id": "item_no_conforme_1", "tipo": "no_conformidad", "label": "No Conformidad 1", "requerido": false},
+                {"id": "item_no_conforme_2", "tipo": "no_conformidad", "label": "No Conformidad 2", "requerido": false},
+                {"id": "item_no_conforme_3", "tipo": "no_conformidad", "label": "No Conformidad 3", "requerido": false}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "constructor", "label": "Constructor"},
+        {"id": "supervisor", "label": "Supervisor"}
+    ]
+}
