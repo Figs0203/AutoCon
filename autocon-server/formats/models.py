@@ -14,12 +14,12 @@ class FormatoTecnico(models.Model):
 
 class FormularioInstancia(models.Model):
     #Cada vez que un usuario llena un formato.
-    BORRADOR  = "borrador"
-    ENVIADO   = "enviado"
+    BORRADOR  = "BORRADOR"
+    ENVIADO   = "ENVIADO"
 
     ESTADO_CHOICES = [
-        (BORRADOR, "Borrador"),
-        (ENVIADO,  "Enviado"),
+        (BORRADOR, "BORRADOR"),
+        (ENVIADO,  "ENVIADO"),
     ]
 
     formato   = models.ForeignKey(FormatoTecnico, on_delete=models.PROTECT)

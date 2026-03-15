@@ -2,7 +2,7 @@
 export const API_URL = "http://192.168.40.12:8000";
 
 const ENDPOINTS = {
-    FORMATS: '/formats',
+    FORMATS: '/formats/',
 };
 
 
@@ -31,6 +31,7 @@ export const submitForm = (formatData) => {
 
     request = {
         formato: 1,
+        estado: "BORRADOR",
         datos: formatData,
     }
     httpServicePost(ENDPOINTS.FORMS, request)

@@ -4,7 +4,7 @@ import axios from "axios"; // <- No es necesario usar axios, ya tenemos apiServi
 import styles from "../src/styles/global";
 import { Formato } from "../src/types";
 import { router } from "expo-router";
-//import { API_URL } from "../src/config/ApiServices";
+import { API_URL } from "../src/config/ApiServices";
 import { getFormats } from "../src/config/ApiServices";
 
 
