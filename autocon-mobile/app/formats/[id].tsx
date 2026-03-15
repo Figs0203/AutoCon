@@ -29,7 +29,7 @@ export default function DetalleFormato() {
       <Text style={styles.textoGris}>{formato.codigo}</Text>
 
       {formato.schema.secciones.map((seccion: any) => (
-        <View key={seccion.id} style={{ marginTop: 20 }}>
+        <View key={seccion.id} style={styles.detalleSeccion}>
           <Text style={styles.subtitulo}>{seccion.titulo}</Text>
 
           {seccion.campos.map((campo: any) => (
@@ -39,23 +39,23 @@ export default function DetalleFormato() {
               {campo.tipo === "texto" && (
                 <TextInput
                   placeholder={`Ingrese ${campo.label}`}
-                  style={{ borderBottomWidth: 1, borderColor: "#ccc", marginTop: 8, padding: 4 }}
+                  style={styles.inputBase}
                 />
               )}
 
               {campo.tipo === "fecha" && (
                 <TextInput
                   placeholder="YYYY-MM-DD"
-                  style={{ borderBottomWidth: 1, borderColor: "#ccc", marginTop: 8, padding: 4 }}
+                  style={styles.inputBase}
                 />
               )}
 
               {campo.tipo === "aprobacion" && (
-                <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
-                  <TouchableOpacity style={[styles.boton, { flex: 1, backgroundColor: "#4CAF50" }]}>
+                <View style={styles.filaOpciones}>
+                  <TouchableOpacity style={[styles.boton, styles.botonFlexible, styles.botonAprobado]}>
                     <Text style={styles.botonTexto}> Aprobado</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.boton, { flex: 1, backgroundColor: "#f44336" }]}>
+                  <TouchableOpacity style={[styles.boton, styles.botonFlexible, styles.botonNoAprobado]}>
                     <Text style={styles.botonTexto}> No aprobado</Text>
                   </TouchableOpacity>
                 </View>
@@ -66,14 +66,14 @@ export default function DetalleFormato() {
                 <TextInput
                   placeholder={`Ingrese ${campo.label}`}
                   keyboardType="numeric"
-                  style={{ borderBottomWidth: 1, borderColor: "#ccc", marginTop: 8, padding: 4 }}
+                  style={styles.inputBase}
                 />
               )} 
 
               {campo.tipo === "seleccion" && (
-                <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+                <View style={styles.filaOpciones}>
                   {campo.opciones.map((op: string) => (
-                    <TouchableOpacity key={op} style={[styles.boton, { flex: 1 }]}>
+                    <TouchableOpacity key={op} style={[styles.boton, styles.botonFlexible]}>
                       <Text style={styles.botonTexto}>{op}</Text>
                     </TouchableOpacity>
                   ))}
@@ -83,12 +83,12 @@ export default function DetalleFormato() {
               {campo.tipo === "aprobacion_doble" && (
                 <View>
                   {campo.revisiones.map((rev: string, i: number) => (
-                    <View key={i} style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
-                      <Text style={{ flex: 1, color: "#666" }}>{rev}</Text>
-                      <TouchableOpacity style={[styles.boton, { backgroundColor: "#4CAF50" }]}>
+                    <View key={i} style={styles.filaRevision}>
+                      <Text style={styles.textoRevision}>{rev}</Text>
+                      <TouchableOpacity style={[styles.boton, styles.botonAprobado]}>
                         <Text style={styles.botonTexto}>✓</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={[styles.boton, { backgroundColor: "#f44336" }]}>
+                      <TouchableOpacity style={[styles.boton, styles.botonNoAprobado]}>
                         <Text style={styles.botonTexto}>✗</Text>
                       </TouchableOpacity>
                     </View>
@@ -96,11 +96,69 @@ export default function DetalleFormato() {
                   {campo.observacion && (
                     <TextInput
                       placeholder="Observación..."
-                      style={{ borderBottomWidth: 1, borderColor: "#ccc", marginTop: 8, padding: 4 }}
+                      style={styles.inputBase}
                     />
                   )}
                 </View>
               )}
+
+              {campo.tipo === "novedad" && (
+                <View style={styles.bloqueCampo}>
+                  <View style={styles.filaInputs}>
+                    <TextInput
+                      placeholder="De (m)"
+                      keyboardType="numeric"
+                      style={[styles.inputInline, styles.inputFlexible]}
+                    />
+                    <TextInput
+                      placeholder="A (m)"
+                      keyboardType="numeric"
+                      style={[styles.inputInline, styles.inputFlexible]}
+                    />
+                  </View>
+                  <TextInput
+                    placeholder="Observación..."
+                    style={styles.inputBase}
+                  />
+                </View>
+              )}
+
+              {campo.tipo === "no_conformidad" && (
+                <View style={styles.bloqueCampo}>
+                  <TextInput
+                    placeholder="N° Item no conforme"
+                    style={styles.inputInline}
+                  />
+                  <TextInput
+                    placeholder="Solución a la no conformidad..."
+                    style={styles.inputBase}
+                  />
+                </View>
+              )}
+
+              {campo.tipo === "aprobacion_con_fecha" && (
+                <View style={styles.bloqueCampo}>
+                  <View style={styles.filaOpciones}>
+                    <TouchableOpacity style={[styles.boton, styles.botonFlexible, styles.botonAprobado]}>
+                      <Text style={styles.botonTexto}>Conforme</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.boton, styles.botonFlexible, styles.botonNoAprobado]}>
+                      <Text style={styles.botonTexto}>No Conforme</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TextInput
+                    placeholder="Fecha de revisión (YYYY-MM-DD)"
+                    style={styles.inputBase}
+                  />
+                  {campo.observacion && (
+                    <TextInput
+                      placeholder="Observación..."
+                      style={styles.inputBase}
+                    />
+                  )}
+                </View>
+              )}
+              
             </View>
           ))}
         </View>
