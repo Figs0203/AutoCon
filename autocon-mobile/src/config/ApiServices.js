@@ -1,8 +1,22 @@
 // Configuración de la API
-export const API_URL = "http://192.168.40.12:8000";
+// Detecta automáticamente la IP del computador que corre Expo,
+// así no hace falta cambiar la IP manualmente en cada máquina.
+import Constants from 'expo-constants';
+
+const getApiUrl = () => {
+    const debuggerHost = Constants.expoConfig?.hostUri ?? Constants.manifest?.debuggerHost;
+    if (debuggerHost) {
+        const ip = debuggerHost.split(':')[0]; // Extrae solo la IP (sin puerto de Expo)
+        return `http://${ip}:8000`;
+    }
+    return 'http://localhost:8000'; // Fallback para web o emulador local
+};
+
+export const API_URL = getApiUrl();
 
 const ENDPOINTS = {
     FORMATS: '/formats/',
+    SUBMIT_FORM: '/formats/submit/',
 };
 
 
@@ -26,13 +40,11 @@ export const httpServicePost = (endpoint, body) => httpService(endpoint, 'POST',
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
 export const submitFormat = (formatData) => httpServicePost(ENDPOINTS.FORMATS, formatData); 
 
-export const getForms = () => httpServiceGet(ENDPOINTS.FORMS);
-export const submitForm = (formatData) => {
-
-    request = {
-        formato: 1,
+export const submitForm = (formatoId, datos) => {
+    const request = {
+        formato: formatoId,
         estado: "BORRADOR",
-        datos: formatData,
-    }
-    httpServicePost(ENDPOINTS.FORMS, request)
-}
+        datos: datos,
+    };
+    return httpServicePost(ENDPOINTS.SUBMIT_FORM, request);
+};

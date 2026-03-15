@@ -31,4 +31,8 @@ export default StyleSheet.create({
   botonFlexible: { flex: 1 },
   botonAprobado: { backgroundColor: "#4CAF50" },
   botonNoAprobado: { backgroundColor: "#f44336" },
-});
+  botonInactivo: { backgroundColor: "#B0BEC5" },
+  botonEnviar: { backgroundColor: "#1976D2", padding: 16, borderRadius: 8,
+                 alignItems: "center", marginTop: 24, marginBottom: 40 },
+  botonDeshabilitado: { backgroundColor: "#9E9E9E" },
+});
