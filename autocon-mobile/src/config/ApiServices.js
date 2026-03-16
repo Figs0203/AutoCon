@@ -17,6 +17,9 @@ export const API_URL = getApiUrl();
 const ENDPOINTS = {
     FORMATS: '/formats/',
     SUBMIT_FORM: '/formats/submit/',
+    DASHBOARD: '/formats/dashboard/',
+    RECENT: '/formats/recent/',
+    SUBMISSIONS: '/formats/submissions/',
 };
 
 
@@ -31,6 +34,11 @@ export const httpService = async (endpoint, method, body = null) => {
         body: body ? JSON.stringify(body) : null,
     });
 
+    // Si es un 204 No Content (como en DELETE), no intentamos parsear JSON
+    if (response.status === 204) {
+        return null;
+    }
+
     return response.json();
 };
 
@@ -38,13 +46,36 @@ export const httpServiceGet = (endpoint) => httpService(endpoint, 'GET');
 export const httpServicePost = (endpoint, body) => httpService(endpoint, 'POST', body);
 
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
-export const submitFormat = (formatData) => httpServicePost(ENDPOINTS.FORMATS, formatData); 
 
-export const submitForm = (formatoId, datos) => {
+// Guardar nueva instancia
+export const submitForm = (formatoId, datos, estado = "BORRADOR") => {
     const request = {
         formato: formatoId,
-        estado: "BORRADOR",
+        estado: estado,
         datos: datos,
     };
     return httpServicePost(ENDPOINTS.SUBMIT_FORM, request);
 };
+
+// Obtener detalle de un submission existente
+export const getSubmissionDetail = (instanciaId) => {
+    return httpServiceGet(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/`);
+};
+
+// Actualizar un submission existente
+export const updateSubmission = (instanciaId, datos, estado) => {
+    const request = {
+        estado: estado,
+        datos: datos,
+    };
+    return httpService(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/`, 'PUT', request);
+};
+
+// Eliminar un submission existente
+export const deleteSubmission = (instanciaId) => {
+    return httpService(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/`, 'DELETE');
+};
+
+export const getDashboardStats = () => httpServiceGet(ENDPOINTS.DASHBOARD);
+export const getRecentSubmissions = () => httpServiceGet(ENDPOINTS.RECENT);
+export const getSubmissions = () => httpServiceGet(ENDPOINTS.SUBMISSIONS);
