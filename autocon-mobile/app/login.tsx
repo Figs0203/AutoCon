@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -95,14 +96,11 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.headerOverlay} />
-          <View style={styles.headerContent}>
-            <View style={styles.logoBox}>
-              <Ionicons name="construct" size={30} color={Colors.headerDark} />
-            </View>
-            <Text style={styles.appName}>AutoCon</Text>
-            <Text style={styles.appSub}>Supervision tecnica digital</Text>
-          </View>
+          <Image
+            source={require("../assets/images/tip.png")}
+            style={styles.headerImage}
+            resizeMode="cover"
+          />
         </View>
 
         <View style={styles.bodyCard}>
