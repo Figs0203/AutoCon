@@ -17,7 +17,7 @@ export default function ProfileScreen() {
         </View>
         <Text style={profileStyles.title}>Perfil</Text>
         <Text style={profileStyles.subtitle}>
-          Próximamente: inicio de sesión y perfil de usuario
+          Próximamente:  perfil de usuario
         </Text>
       </View>
     </SafeAreaView>
