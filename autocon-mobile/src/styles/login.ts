@@ -1,5 +1,7 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { Colors } from "./colors";
+
+const IS_WEB = Platform.OS === "web";
 
 export const loginStyles = StyleSheet.create({
   safe: {
@@ -29,8 +31,17 @@ export const loginStyles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  webHeaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(10, 18, 42, 0.22)",
+  },
+  webHeaderImageContain: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+  },
   bodyCard: {
-    marginTop: -24,
+    marginTop: IS_WEB ? 0 : -24,
     marginHorizontal: 0,
     backgroundColor: Colors.white,
     borderTopLeftRadius: 28,

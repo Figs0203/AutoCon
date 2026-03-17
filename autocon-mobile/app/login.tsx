@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   Image,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -97,7 +98,11 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Image
-            source={require("../assets/images/tip.png")}
+            source={
+              Platform.OS === "web"
+                ? require("../assets/images/tipw.png")
+                : require("../assets/images/tip.png")
+            }
             style={styles.headerImage}
             resizeMode="cover"
           />
