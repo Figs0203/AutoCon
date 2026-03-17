@@ -10,6 +10,7 @@ import { Colors } from "../src/styles/colors";
 export default function RootLayout() {
   return (
     <Tabs
+      initialRouteName="login"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.tabActive,
@@ -63,6 +64,23 @@ export default function RootLayout() {
         name="profile"
         options={{
           href: null,
+        }}
+      />
+
+      {/* ── Login (pantalla de acceso inicial) ─────────────── */}
+      <Tabs.Screen
+        name="login"
+        options={{
+          href: null,
+          tabBarStyle: { display: "none" },
+        }}
+      />
+
+      <Tabs.Screen
+        name="register"
+        options={{
+          href: null,
+          tabBarStyle: { display: "none" },
         }}
       />
 

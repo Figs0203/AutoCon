@@ -19,7 +19,9 @@ import { Colors } from "../src/styles/colors";
 import {
   getDashboardStats,
   getRecentSubmissions,
+  getCurrentUser,
 } from "../src/config/ApiServices";
+import { useFocusEffect } from "expo-router";
 
 /** Interfaz de respuesta del backend /formats/dashboard/ */
 interface DashboardStats {
@@ -47,8 +49,29 @@ export default function HomeScreen() {
   const [recent, setRecent] = useState<RecentSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  const ensureAuth = useCallback(async () => {
+    try {
+      await getCurrentUser();
+      setAuthorized(true);
+    } catch (_error) {
+      setAuthorized(false);
+      router.replace("/login");
+    }
+  }, [router]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setAuthorized(null);
+      setLoading(true);
+      ensureAuth();
+    }, [ensureAuth])
+  );
 
   const fetchData = useCallback(async () => {
+    if (!authorized) return;
+
     try {
       const [statsData, recentData] = await Promise.all([
         getDashboardStats(),
@@ -62,16 +85,33 @@ export default function HomeScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [authorized]);
 
   useEffect(() => {
-    fetchData();
+    if (authorized) {
+      fetchData();
+    }
   }, [fetchData]);
 
   const onRefresh = useCallback(() => {
+    if (!authorized) return;
     setRefreshing(true);
     fetchData();
-  }, [fetchData]);
+  }, [authorized, fetchData]);
+
+  if (authorized === null) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.accent} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!authorized) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
