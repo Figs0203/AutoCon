@@ -3,7 +3,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+from django.db.models import Count
+from django.utils import timezone
 
+from formats.models import FormularioInstancia
+from .models import UserProfile
 from .serializers import RegisterSerializer, LoginSerializer
 
 @api_view(['GET'])
@@ -45,6 +50,66 @@ def current_user(request):
             'id': request.user.id,
             'email': request.user.email,
             'role': role,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def socios_dashboard(request):
+    profile = getattr(request.user, 'profile', None)
+    role = profile.role if profile else None
+
+    if role != UserProfile.SOCIOS:
+        return Response(
+            {'detail': 'Solo disponible para usuarios socios'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    supervisores = User.objects.filter(profile__role=UserProfile.SUPERVISOR_TECNICO).order_by('email')
+
+    supervisor_ids = list(supervisores.values_list('id', flat=True))
+
+    counts_by_user = {
+        row['usuario']: row['total']
+        for row in (
+            FormularioInstancia.objects
+            .filter(usuario_id__in=supervisor_ids)
+            .values('usuario')
+            .annotate(total=Count('id'))
+        )
+    }
+
+    supervisores_data = []
+    for supervisor in supervisores:
+        full_name = f"{supervisor.first_name} {supervisor.last_name}".strip()
+        nombre = full_name or supervisor.email
+        supervisores_data.append(
+            {
+                'id': supervisor.id,
+                'nombre': nombre,
+                'email': supervisor.email,
+                'formatos_diligenciados': counts_by_user.get(supervisor.id, 0),
+            }
+        )
+
+    ahora = timezone.now()
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    qs = FormularioInstancia.objects.filter(usuario_id__in=supervisor_ids)
+
+    resumen = {
+        'total_supervisores': supervisores.count(),
+        'total_formatos_diligenciados': qs.count(),
+        'formatos_enviados': qs.filter(estado=FormularioInstancia.ENVIADO).count(),
+        'formatos_borrador': qs.filter(estado=FormularioInstancia.BORRADOR).count(),
+        'formatos_este_mes': qs.filter(fecha__gte=inicio_mes).count(),
+    }
+
+    return Response(
+        {
+            'resumen': resumen,
+            'supervisores': supervisores_data,
         },
         status=status.HTTP_200_OK,
     )
