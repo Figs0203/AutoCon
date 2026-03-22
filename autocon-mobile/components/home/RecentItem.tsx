@@ -82,7 +82,8 @@ export default function RecentItem({
     <TouchableOpacity
       style={styles.recentCard}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={onPress ? 0.7 : 1}
+      disabled={!onPress}
     >
       <View style={styles.recentCardContent}>
         <Text style={styles.recentTitle} numberOfLines={1}>
@@ -103,12 +104,14 @@ export default function RecentItem({
           </View>
         </View>
       </View>
-      <Ionicons
-        name="chevron-forward"
-        size={20}
-        color={Colors.textMuted}
-        style={styles.chevron}
-      />
+      {onPress ? (
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={Colors.textMuted}
+          style={styles.chevron}
+        />
+      ) : null}
     </TouchableOpacity>
   );
 }

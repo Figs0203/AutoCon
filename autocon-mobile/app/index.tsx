@@ -1,25 +1,25 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
-  Text,
   ScrollView,
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
 
 import HomeHeader from "../components/home/HomeHeader";
-import StatCard from "../components/home/StatCard";
-import RecentItem, { formatRelativeDate } from "../components/home/RecentItem";
+import SociosHomeView from "../components/home/SociosHomeView";
+import SupervisorHomeView from "../components/home/SupervisorHomeView";
 import { homeStyles as styles } from "../src/styles/home";
 import { Colors } from "../src/styles/colors";
 import {
   getDashboardStats,
   getRecentSubmissions,
   getCurrentUser,
+  getSociosDashboard,
+  logout,
 } from "../src/config/ApiServices";
 import { useFocusEffect } from "expo-router";
 
@@ -39,6 +39,26 @@ interface RecentSubmission {
   fecha: string;
 }
 
+interface SociosResumen {
+  total_supervisores: number;
+  total_formatos_diligenciados: number;
+  formatos_enviados: number;
+  formatos_borrador: number;
+  formatos_este_mes: number;
+}
+
+interface SociosSupervisor {
+  id: number;
+  nombre: string;
+  email: string;
+  formatos_diligenciados: number;
+}
+
+interface SociosDashboardResponse {
+  resumen: SociosResumen;
+  supervisores: SociosSupervisor[];
+}
+
 /**
  * Pantalla principal (Inicio) del dashboard.
  * Muestra estadísticas y formularios recientes.
@@ -50,10 +70,20 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [sociosData, setSociosData] = useState<SociosDashboardResponse | null>(null);
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+    } finally {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const ensureAuth = useCallback(async () => {
     try {
-      await getCurrentUser();
+      const user = await getCurrentUser();
+      setRole(user?.role ?? null);
       setAuthorized(true);
     } catch (_error) {
       setAuthorized(false);
@@ -73,25 +103,33 @@ export default function HomeScreen() {
     if (!authorized) return;
 
     try {
-      const [statsData, recentData] = await Promise.all([
-        getDashboardStats(),
-        getRecentSubmissions(),
-      ]);
-      setStats(statsData);
-      setRecent(recentData);
+      if (role === "SOCIOS") {
+        const sociosDashboard = await getSociosDashboard();
+        setSociosData(sociosDashboard);
+        setStats(null);
+        setRecent([]);
+      } else {
+        const [statsData, recentData] = await Promise.all([
+          getDashboardStats(),
+          getRecentSubmissions(),
+        ]);
+        setStats(statsData);
+        setRecent(recentData);
+        setSociosData(null);
+      }
     } catch (error) {
       console.error("Error al cargar el dashboard:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [authorized]);
+  }, [authorized, role]);
 
   useEffect(() => {
-    if (authorized) {
+    if (authorized && role) {
       fetchData();
     }
-  }, [fetchData]);
+  }, [fetchData, authorized, role]);
 
   const onRefresh = useCallback(() => {
     if (!authorized) return;
@@ -123,7 +161,7 @@ export default function HomeScreen() {
         }
       >
         {/* ── Header ──────────────────────────────────────────── */}
-        <HomeHeader />
+        <HomeHeader onLogout={handleLogout} />
 
         {/* ── Cuerpo ──────────────────────────────────────────── */}
         <View style={styles.body}>
@@ -131,75 +169,10 @@ export default function HomeScreen() {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={Colors.accent} />
             </View>
+          ) : role === "SOCIOS" ? (
+            <SociosHomeView data={sociosData} />
           ) : (
-            <>
-              {/* ── Tarjetas de estadísticas ───────────────────── */}
-              <View style={styles.statsGrid}>
-                <StatCard
-                  icon="checkmark-done-outline"
-                  count={stats?.completados ?? 0}
-                  label="Completados"
-                  cardColor={Colors.cardGreen}
-                  iconBgColor={Colors.cardGreenIcon}
-                  iconColor={Colors.cardGreenIconFg}
-                />
-                <StatCard
-                  icon="time-outline"
-                  count={stats?.pendientes ?? 0}
-                  label="Pendientes"
-                  cardColor={Colors.cardYellow}
-                  iconBgColor={Colors.cardYellowIcon}
-                  iconColor={Colors.cardYellowIconFg}
-                />
-                <StatCard
-                  icon="trending-up-outline"
-                  count={stats?.este_mes ?? 0}
-                  label="Este Mes"
-                  cardColor={Colors.cardBlue}
-                  iconBgColor={Colors.cardBlueIcon}
-                  iconColor={Colors.cardBlueIconFg}
-                />
-                <StatCard
-                  icon="documents-outline"
-                  count={
-                    (stats?.completados ?? 0) + (stats?.pendientes ?? 0)
-                  }
-                  label="Total"
-                  cardColor={Colors.cardPurple}
-                  iconBgColor={Colors.cardPurpleIcon}
-                  iconColor={Colors.cardPurpleIconFg}
-                />
-              </View>
-
-              {/* ── Recientes ─────────────────────────────────── */}
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Recientes</Text>
-              </View>
-
-              {recent.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Ionicons
-                    name="document-text-outline"
-                    size={48}
-                    color={Colors.textMuted}
-                  />
-                  <Text style={styles.emptyText}>
-                    No hay formularios recientes
-                  </Text>
-                </View>
-              ) : (
-                recent.map((item) => (
-                  <RecentItem
-                    key={item.id}
-                    title={`#${item.id} - ${item.titulo}`}
-                    subtitle={item.codigo}
-                    status={item.estado}
-                    dateLabel={formatRelativeDate(item.fecha)}
-                    onPress={() => router.push(`/formats/${item.id}?type=instance` as any)}
-                  />
-                ))
-              )}
-            </>
+            <SupervisorHomeView stats={stats} recent={recent} />
           )}
         </View>
       </ScrollView>

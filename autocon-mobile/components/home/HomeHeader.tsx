@@ -14,18 +14,25 @@ function getGreeting(): string {
   return "Buenas noches";
 }
 
+interface HomeHeaderProps {
+  onLogout?: () => void;
+}
+
 /**
  * Header oscuro del home: saludo, campana de notificación y barra de búsqueda.
  */
-export default function HomeHeader() {
+export default function HomeHeader({ onLogout }: HomeHeaderProps) {
   return (
     <View style={styles.header}>
-      {/* Fila superior: saludo */}
       <View style={styles.headerTopRow}>
         <View>
           <Text style={styles.greetingSmall}>{getGreeting()}</Text>
           <Text style={styles.greetingLarge}>AutoCon</Text>
         </View>
+
+        <TouchableOpacity onPress={onLogout} activeOpacity={0.8}>
+          <Ionicons name="log-out-outline" size={22} color={Colors.white} />
+        </TouchableOpacity>
       </View>
     </View>
   );
