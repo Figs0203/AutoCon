@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../../src/styles/global";
 import { Formato } from "../../src/types";
-import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission } from "../../src/config/ApiServices";
+import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser } from "../../src/config/ApiServices";
 
 type Respuestas = Record<string, any>;
 
@@ -18,6 +18,7 @@ export default function DetalleFormato() {
   const [cargando, setCargando] = useState(true);
   const [enviandoBorrador, setEnviandoBorrador] = useState(false);
   const [enviandoCompletado, setEnviandoCompletado] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const isInitialLoad = useRef(true);
   const localDraftKey = `draft_${type}_${id}`;
@@ -27,6 +28,13 @@ export default function DetalleFormato() {
     const cargarDatos = async () => {
       setCargando(true);
       try {
+        const user = await getCurrentUser();
+        if (type === "template" && user?.role === "SOCIOS") {
+          Alert.alert("Acceso restringido", "Los socios no pueden diligenciar formatos.");
+          router.replace("/");
+          return;
+        }
+
         let baseRespuestas = {};
         let currentEstado = "BORRADOR";
         
@@ -152,9 +160,116 @@ export default function DetalleFormato() {
     return true;
   };
 
+  const collectRequiredValidationErrors = useCallback((): string[] => {
+    if (!formato?.schema?.secciones) return [];
+
+    const errors: string[] = [];
+
+    const isFilled = (value: any): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string") return value.trim().length > 0;
+      if (Array.isArray(value)) return value.length > 0;
+      return true;
+    };
+
+    for (const seccion of formato.schema.secciones) {
+      for (const campo of seccion.campos || []) {
+        const value = respuestas[campo.id];
+        const label = campo.label || campo.id;
+
+        if (["texto", "fecha", "numero", "seleccion", "aprobacion"].includes(campo.tipo)) {
+          if (!isFilled(value)) {
+            errors.push(`${label}: campo obligatorio`);
+          }
+          continue;
+        }
+
+        if (campo.tipo === "aprobacion_doble") {
+          const revisiones = Array.isArray(value?.revisiones) ? value.revisiones : [];
+          const primera = revisiones[0];
+          const segunda = revisiones[1];
+          const observacion = typeof value?.observacion === "string" ? value.observacion.trim() : "";
+
+          if (primera !== true && primera !== false) {
+            errors.push(`${label}: campo obligatorio`);
+            continue;
+          }
+          if (segunda !== true && segunda !== false) {
+            errors.push(`${label}: campo obligatorio`);
+            continue;
+          }
+          if (campo.observacion && observacion.length === 0) {
+            errors.push(`${label}: campo obligatorio`);
+          }
+          continue;
+        }
+
+        if (campo.tipo === "aprobacion_con_fecha") {
+          const conforme = value?.conforme;
+          const fecha = typeof value?.fecha === "string" ? value.fecha.trim() : "";
+          const observacion = typeof value?.observacion === "string" ? value.observacion.trim() : "";
+
+          if (conforme !== true && conforme !== false) {
+            errors.push(`${label}: campo obligatorio`);
+            continue;
+          }
+          if (fecha.length === 0) {
+            errors.push(`${label}: campo obligatorio`);
+            continue;
+          }
+          if (campo.observacion && observacion.length === 0) {
+            errors.push(`${label}: campo obligatorio`);
+          }
+          continue;
+        }
+
+        if (campo.tipo === "novedad") {
+          const de = typeof value?.de === "string" ? value.de.trim() : value?.de;
+          const a = typeof value?.a === "string" ? value.a.trim() : value?.a;
+          const observacion = typeof value?.observacion === "string" ? value.observacion.trim() : "";
+          if (!isFilled(de) || !isFilled(a) || observacion.length === 0) {
+            errors.push(`${label}: campo obligatorio`);
+          }
+          continue;
+        }
+
+        if (campo.tipo === "no_conformidad") {
+          const item = typeof value?.item === "string" ? value.item.trim() : "";
+          const solucion = typeof value?.solucion === "string" ? value.solucion.trim() : "";
+          if (item.length === 0 || solucion.length === 0) {
+            errors.push(`${label}: campo obligatorio`);
+          }
+          continue;
+        }
+
+        if (!isFilled(value)) {
+          errors.push(`${label}: campo obligatorio`);
+        }
+      }
+    }
+
+    return errors;
+  }, [formato, respuestas]);
+
   // ─── Guardar en la Base de Datos Oficial ──────────────────────────────────
   const handleGuardar = async (nuevoEstado: "BORRADOR" | "ENVIADO") => {
     if (!id) return;
+
+    setSubmitError("");
+
+    if (nuevoEstado === "ENVIADO") {
+      const validationErrors = collectRequiredValidationErrors();
+      if (validationErrors.length > 0) {
+        setSubmitError("Verifica que todos los campos obligatorios estén diligenciados.");
+        const preview = validationErrors.slice(0, 5).join("\n• ");
+        const extraCount = validationErrors.length - 5;
+        Alert.alert(
+          "Faltan campos obligatorios",
+          `• ${preview}${extraCount > 0 ? `\n\nY ${extraCount} más...` : ""}`
+        );
+        return;
+      }
+    }
     
     // Evitar borradores vacíos
     if (isDraftEmpty(respuestas)) {
@@ -192,6 +307,7 @@ export default function DetalleFormato() {
       Alert.alert("Éxito", nuevoEstado === "ENVIADO" ? "Tu cuestionario ha sido enviado exitosamente." : "Borrador guardado exitosamente.");
       router.back();
     } catch (error: any) {
+      setSubmitError("No se pudo finalizar el formulario. Verifica que todos los campos obligatorios estén diligenciados.");
       Alert.alert("Error", error.message || "No se pudo comunicar con el servidor.");
     } finally {
       if (nuevoEstado === "BORRADOR") setEnviandoBorrador(false);
@@ -481,32 +597,51 @@ export default function DetalleFormato() {
         
         {/* ── Botones de Gestión ───────────────────────────────── */}
         {!readonly && (
-          <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
-            {/* Botón Borrador */}
-            <TouchableOpacity
-              style={[styles.botonEnviar, { flex: 1, backgroundColor: "#64748B" }, enviandoBorrador && styles.botonDeshabilitado]}
-              onPress={() => handleGuardar("BORRADOR")}
-              disabled={enviandoBorrador || enviandoCompletado}
-            >
-              {enviandoBorrador ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.botonTexto}>Guardar Borrador</Text>
-              )}
-            </TouchableOpacity>
+          <View style={{ marginTop: 16 }}>
+            {submitError ? (
+              <Text
+                style={[
+                  styles.textoGris,
+                  {
+                    color: "#B91C1C",
+                    marginBottom: 12,
+                    fontSize: 15,
+                    fontWeight: "600",
+                    lineHeight: 22,
+                  },
+                ]}
+              >
+                {submitError}
+              </Text>
+            ) : null}
 
-            {/* Botón Completar */}
-            <TouchableOpacity
-              style={[styles.botonEnviar, { flex: 1, backgroundColor: "#10B981" }, enviandoCompletado && styles.botonDeshabilitado]}
-              onPress={() => handleGuardar("ENVIADO")}
-              disabled={enviandoBorrador || enviandoCompletado}
-            >
-              {enviandoCompletado ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.botonTexto}>Finalizar y Enviar</Text>
-              )}
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              {/* Botón Borrador */}
+              <TouchableOpacity
+                style={[styles.botonEnviar, { flex: 1, backgroundColor: "#64748B" }, enviandoBorrador && styles.botonDeshabilitado]}
+                onPress={() => handleGuardar("BORRADOR")}
+                disabled={enviandoBorrador || enviandoCompletado}
+              >
+                {enviandoBorrador ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.botonTexto}>Guardar Borrador</Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Botón Completar */}
+              <TouchableOpacity
+                style={[styles.botonEnviar, { flex: 1, backgroundColor: "#10B981" }, enviandoCompletado && styles.botonDeshabilitado]}
+                onPress={() => handleGuardar("ENVIADO")}
+                disabled={enviandoBorrador || enviandoCompletado}
+              >
+                {enviandoCompletado ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.botonTexto}>Finalizar y Enviar</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>

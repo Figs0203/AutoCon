@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../src/styles/colors";
 import styles from "../src/styles/global";
 import { Formato } from "../src/types";
-import { getFormats } from "../src/config/ApiServices";
+import { getFormats, getCurrentUser } from "../src/config/ApiServices";
 
 /**
  * Pantalla "Nuevo": Muestra la lista de plantillas disponibles
@@ -14,10 +14,32 @@ import { getFormats } from "../src/config/ApiServices";
  */
 export default function FormsScreen() {
   const [formatos, setFormatos] = useState<Formato[]>([]);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
-    getFormats().then(data => setFormatos(data));
+    const init = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user?.role === "SOCIOS") {
+          setBlocked(true);
+          Alert.alert("Acceso restringido", "Los socios no pueden crear formularios.");
+          router.replace("/");
+          return;
+        }
+
+        const data = await getFormats();
+        setFormatos(data);
+      } catch (_error) {
+        router.replace("/login");
+      }
+    };
+
+    init();
   }, []);
+
+  if (blocked) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>

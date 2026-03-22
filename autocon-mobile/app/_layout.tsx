@@ -1,13 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../src/styles/colors";
+import { getCachedUser, getCurrentUser } from "../src/config/ApiServices";
 
 /**
  * Layout raíz de la app: bottom tab bar con 4 pestañas.
  * Las pantallas de detalle (formats/[id]) se ocultan del tab bar.
  */
 export default function RootLayout() {
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const resolveRole = async () => {
+      try {
+        const cachedUser = await getCachedUser();
+        if (cachedUser?.role) {
+          setRole(cachedUser.role);
+        }
+
+        const user = await getCurrentUser();
+        setRole(user?.role ?? null);
+      } catch (_error) {
+        setRole(null);
+      }
+    };
+
+    resolveRole();
+  }, []);
+
   return (
     <Tabs
       initialRouteName="login"
@@ -52,6 +73,7 @@ export default function RootLayout() {
       <Tabs.Screen
         name="forms"
         options={{
+          href: role === "SOCIOS" ? null : undefined,
           title: "Nuevo",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
