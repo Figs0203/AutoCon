@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -9,4 +10,4 @@ urlpatterns = [
     path("formats/recent/", views.recent_submissions),
     path("formats/submissions/", views.user_submissions),
     path("formats/submissions/<int:pk>/", views.detalle_instancia),
-]
+]

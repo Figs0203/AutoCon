@@ -16,7 +16,6 @@ from django.core.management.base import BaseCommand
 
 from formats.models import FormatoTecnico
 
-
 # Mapeo de archivo JSON → (código, nombre descriptivo)
 FORMATOS = {
     "FR_E1.json": (
@@ -45,9 +44,9 @@ class Command(BaseCommand):
         schemas_dir = Path(__file__).resolve().parent.parent.parent / "sample_schemas"
 
         if not schemas_dir.exists():
-            self.stderr.write(self.style.ERROR(
-                f"No se encontró la carpeta: {schemas_dir}"
-            ))
+            self.stderr.write(
+                self.style.ERROR(f"No se encontró la carpeta: {schemas_dir}")
+            )
             return
 
         creados = 0
@@ -57,16 +56,18 @@ class Command(BaseCommand):
             ruta = schemas_dir / archivo
 
             if not ruta.exists():
-                self.stderr.write(self.style.WARNING(
-                    f"  ⚠ Archivo no encontrado: {archivo} — omitido"
-                ))
+                self.stderr.write(
+                    self.style.WARNING(
+                        f"  ⚠ Archivo no encontrado: {archivo} — omitido"
+                    )
+                )
                 continue
 
             # Evitar duplicados por código
             if FormatoTecnico.objects.filter(codigo=codigo).exists():
-                self.stdout.write(self.style.WARNING(
-                    f"  ⏭ {codigo} ya existe — omitido"
-                ))
+                self.stdout.write(
+                    self.style.WARNING(f"  ⏭ {codigo} ya existe — omitido")
+                )
                 omitidos += 1
                 continue
 
@@ -79,12 +80,12 @@ class Command(BaseCommand):
                 schema=schema,
                 activo=True,
             )
-            self.stdout.write(self.style.SUCCESS(
-                f"{codigo} — {nombre}"
-            ))
+            self.stdout.write(self.style.SUCCESS(f"{codigo} — {nombre}"))
             creados += 1
 
         self.stdout.write("")
-        self.stdout.write(self.style.SUCCESS(
-            f"Resultado: {creados} creados, {omitidos} omitidos (ya existían)"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Resultado: {creados} creados, {omitidos} omitidos (ya existían)"
+            )
+        )

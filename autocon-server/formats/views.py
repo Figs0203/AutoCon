@@ -1,15 +1,14 @@
 from django.utils import timezone
-
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 
 from .models import FormatoTecnico, FormularioInstancia
 from .serializers import FormatoTecnicoSerializer, FormularioInstanciaSerializer
 
-
 # ── Formatos (plantillas) ──────────────────────────────────────────
+
 
 @api_view(["GET"])
 def lista_formatos(request):
@@ -33,6 +32,7 @@ def detalle_formato(request, pk):
 
 # ── Formularios (instancias) ──────────────────────────────────────
 
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def guardar_formulario(request):
@@ -45,6 +45,7 @@ def guardar_formulario(request):
 
 
 # ── Dashboard ─────────────────────────────────────────────────────
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -68,8 +69,7 @@ def dashboard_stats(request):
 def recent_submissions(request):
     """Retorna las 5 instancias más recientes con datos del formato asociado."""
     recientes = (
-        FormularioInstancia.objects
-        .filter(usuario=request.user)
+        FormularioInstancia.objects.filter(usuario=request.user)
         .select_related("formato")
         .order_by("-fecha")[:5]
     )
@@ -86,13 +86,13 @@ def recent_submissions(request):
     ]
     return Response(data)
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_submissions(request):
     """Retorna todas las instancias (historial) enviadas/guardadas por el usuario."""
     envios = (
-        FormularioInstancia.objects
-        .filter(usuario=request.user)
+        FormularioInstancia.objects.filter(usuario=request.user)
         .select_related("formato")
         .order_by("-fecha")
     )
@@ -109,6 +109,7 @@ def user_submissions(request):
     ]
     return Response(data)
 
+
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def detalle_instancia(request, pk):
@@ -116,7 +117,10 @@ def detalle_instancia(request, pk):
     try:
         instancia = FormularioInstancia.objects.get(pk=pk, usuario=request.user)
     except FormularioInstancia.DoesNotExist:
-        return Response({"error": "Instancia no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Instancia no encontrada"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
     if request.method == "GET":
         serializer = FormularioInstanciaSerializer(instancia)
@@ -133,7 +137,7 @@ def detalle_instancia(request, pk):
 
         serializer = FormularioInstanciaSerializer(instancia)
         return Response(serializer.data)
-        
+
     elif request.method == "DELETE":
         instancia.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
