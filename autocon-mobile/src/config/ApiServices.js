@@ -1,6 +1,5 @@
 // Configuración de la API
-// Detecta automáticamente la IP del computador que corre Expo,
-// así no hace falta cambiar la IP manualmente en cada máquina.
+// Prioriza variable de entorno local para evitar subir IPs privadas al repositorio.
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -8,12 +7,17 @@ const AUTH_TOKEN_KEY = 'auth_token';
 const AUTH_USER_KEY = 'auth_user';
 
 const getApiUrl = () => {
+    if (process.env.EXPO_PUBLIC_API_URL) {
+        return process.env.EXPO_PUBLIC_API_URL;
+    }
+
     const debuggerHost = Constants.expoConfig?.hostUri ?? Constants.manifest?.debuggerHost;
     if (debuggerHost) {
-        const ip = debuggerHost.split(':')[0]; // Extrae solo la IP (sin puerto de Expo)
+        const ip = debuggerHost.split(':')[0];
         return `http://${ip}:8000`;
     }
-    return 'http://localhost:8000'; // Fallback para web o emulador local
+
+    return 'http://localhost:8000';
 };
 
 export const API_URL = getApiUrl();
@@ -28,6 +32,7 @@ const ENDPOINTS = {
     LOGIN: '/users/login/',
     LOGOUT: '/users/logout/',
     ME: '/users/me/',
+    SOCIOS_DASHBOARD: '/users/socios/dashboard/',
 };
 
 
@@ -137,6 +142,8 @@ export const logout = async () => {
 export const getCurrentUser = async () => {
     return httpServiceAuthGet(ENDPOINTS.ME);
 };
+
+export const getSociosDashboard = () => httpServiceAuthGet(ENDPOINTS.SOCIOS_DASHBOARD);
 
 export const getCachedUser = async () => {
     const raw = await AsyncStorage.getItem(AUTH_USER_KEY);
