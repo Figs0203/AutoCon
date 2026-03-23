@@ -288,10 +288,6 @@ ruff check . --fix
 ruff format .
 ```
 
-##  Licencia
-
-[Especifica tu licencia aquí]
-
 ##  Contribuidores
 
-[Tu nombre y contacto]
+Sofía Gallo, Mariamny Ramirez, Laura Indabur, Martín Valencia y Agustín Figueroa
