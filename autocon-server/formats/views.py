@@ -1,13 +1,13 @@
 from django.utils import timezone
-
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+
+from users.models import UserProfile
 
 from .models import FormatoTecnico, FormularioInstancia
 from .serializers import FormatoTecnicoSerializer, FormularioInstanciaSerializer
-from users.models import UserProfile
 
 
 def _is_present(value):
@@ -34,7 +34,9 @@ def _is_field_completed(campo, value):
         segunda = revisiones[1] if len(revisiones) > 1 else None
         if primera not in [True, False] or segunda not in [True, False]:
             return False
-        if campo.get("observacion", False) and not _is_present(value.get("observacion")):
+        if campo.get("observacion", False) and not _is_present(
+            value.get("observacion")
+        ):
             return False
         return True
 
@@ -45,7 +47,9 @@ def _is_field_completed(campo, value):
             return False
         if not _is_present(value.get("fecha")):
             return False
-        if campo.get("observacion", False) and not _is_present(value.get("observacion")):
+        if campo.get("observacion", False) and not _is_present(
+            value.get("observacion")
+        ):
             return False
         return True
 
@@ -84,6 +88,7 @@ def _validate_required_fields(schema, datos):
 
 # ── Formatos (plantillas) ──────────────────────────────────────────
 
+
 @api_view(["GET"])
 def lista_formatos(request):
     formatos = FormatoTecnico.objects.filter(activo=True)
@@ -105,6 +110,7 @@ def detalle_formato(request, pk):
 
 
 # ── Formularios (instancias) ──────────────────────────────────────
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -149,6 +155,7 @@ def guardar_formulario(request):
 
 # ── Dashboard ─────────────────────────────────────────────────────
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):
@@ -171,8 +178,7 @@ def dashboard_stats(request):
 def recent_submissions(request):
     """Retorna las 5 instancias más recientes con datos del formato asociado."""
     recientes = (
-        FormularioInstancia.objects
-        .filter(usuario=request.user)
+        FormularioInstancia.objects.filter(usuario=request.user)
         .select_related("formato")
         .order_by("-fecha")[:5]
     )
@@ -189,13 +195,13 @@ def recent_submissions(request):
     ]
     return Response(data)
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_submissions(request):
     """Retorna todas las instancias (historial) enviadas/guardadas por el usuario."""
     envios = (
-        FormularioInstancia.objects
-        .filter(usuario=request.user)
+        FormularioInstancia.objects.filter(usuario=request.user)
         .select_related("formato")
         .order_by("-fecha")
     )
@@ -212,6 +218,7 @@ def user_submissions(request):
     ]
     return Response(data)
 
+
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def detalle_instancia(request, pk):
@@ -226,7 +233,10 @@ def detalle_instancia(request, pk):
     try:
         instancia = FormularioInstancia.objects.get(pk=pk, usuario=request.user)
     except FormularioInstancia.DoesNotExist:
-        return Response({"error": "Instancia no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Instancia no encontrada"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
     if request.method == "GET":
         serializer = FormularioInstanciaSerializer(instancia)
@@ -238,7 +248,10 @@ def detalle_instancia(request, pk):
         estado = request.data.get("estado", instancia.estado)
 
         if estado == FormularioInstancia.ENVIADO:
-            validation_errors = _validate_required_fields(instancia.formato.schema, datos)
+            validation_errors = _validate_required_fields(
+                instancia.formato.schema,
+                datos,
+            )
             if validation_errors:
                 return Response(
                     {
@@ -254,7 +267,7 @@ def detalle_instancia(request, pk):
 
         serializer = FormularioInstanciaSerializer(instancia)
         return Response(serializer.data)
-        
+
     elif request.method == "DELETE":
         instancia.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,0 +1,14 @@
+[tool.ruff]
+line-length = 88
+exclude = [
+  "migrations",
+  "__pycache__",
+  ".ruff_cache",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
