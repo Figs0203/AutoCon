@@ -4,9 +4,11 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../../src/styles/global";
 import { Formato } from "../../src/types";
+import SignatureField from "../../components/formats/SignatureField";
 import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser } from "../../src/config/ApiServices";
 
 type Respuestas = Record<string, any>;
+const SIGNATURES_KEY = "__firmas";
 
 export default function DetalleFormato() {
   const router = useRouter();
@@ -119,6 +121,27 @@ export default function DetalleFormato() {
     },
     []
   );
+
+  const guardarFirma = useCallback((firmaId: string, signatureBase64: string) => {
+    setRespuestas((prev) => ({
+      ...prev,
+      [SIGNATURES_KEY]: {
+        ...(prev[SIGNATURES_KEY] || {}),
+        [firmaId]: signatureBase64,
+      },
+    }));
+  }, []);
+
+  const limpiarFirma = useCallback((firmaId: string) => {
+    setRespuestas((prev) => {
+      const current = { ...(prev[SIGNATURES_KEY] || {}) };
+      delete current[firmaId];
+      return {
+        ...prev,
+        [SIGNATURES_KEY]: current,
+      };
+    });
+  }, []);
 
   const isDraftEmpty = (resp: Respuestas): boolean => {
     if (!resp || Object.keys(resp).length === 0) return true;
@@ -245,6 +268,15 @@ export default function DetalleFormato() {
         if (!isFilled(value)) {
           errors.push(`${label}: campo obligatorio`);
         }
+      }
+    }
+
+    const firmas = Array.isArray(formato.schema?.firmas) ? formato.schema.firmas : [];
+    const storedSignatures = respuestas[SIGNATURES_KEY] || {};
+    for (const firma of firmas) {
+      const signatureValue = typeof storedSignatures?.[firma.id] === "string" ? storedSignatures[firma.id].trim() : "";
+      if (!signatureValue) {
+        errors.push(`${firma.label || firma.id}: firma obligatoria`);
       }
     }
 
@@ -594,6 +626,22 @@ export default function DetalleFormato() {
             ))}
           </View>
         ))}
+
+        {Array.isArray(formato.schema?.firmas) && formato.schema.firmas.length > 0 && (
+          <View style={[styles.detalleSeccion, readonly && { opacity: 0.7 }]}> 
+            <Text style={styles.subtitulo}>Firmas</Text>
+            {formato.schema.firmas.map((firma: any) => (
+              <SignatureField
+                key={firma.id}
+                label={firma.label || firma.id}
+                value={respuestas[SIGNATURES_KEY]?.[firma.id]}
+                readonly={readonly}
+                onChange={(signature) => guardarFirma(firma.id, signature)}
+                onClear={() => limpiarFirma(firma.id)}
+              />
+            ))}
+          </View>
+        )}
         
         {/* ── Botones de Gestión ───────────────────────────────── */}
         {!readonly && (
