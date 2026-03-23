@@ -1,0 +1,78 @@
+{
+    "formulario": "FR-SE9",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "proyecto", "tipo": "texto", "label": "Proyecto", "requerido": true},
+                {"id": "actividad", "tipo": "texto", "label": "Actividad", "requerido": true},
+                {"id": "constructor", "tipo": "texto", "label": "Constructor", "requerido": true},
+                {"id": "ubicacion", "tipo": "texto", "label": "Ubicación", "requerido": true},
+                {"id": "nombre_plano", "tipo": "texto", "label": "Nombre de Plano", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión Plano", "requerido": true},
+                {"id": "fecha_actualizacion", "tipo": "fecha", "label": "Fecha Actualización", "requerido": true},
+                {"id": "contratista_tierras", "tipo": "texto", "label": "Contratista Movimiento de Tierras", "requerido": true},
+                {"id": "revision_replanteo", "tipo": "aprobacion_con_fecha", "label": "Revisión Replanteo y Cabida", "observacion": true},
+                {"id": "fecha_inicio", "tipo": "fecha", "label": "Fecha Inicio de Movimiento de Tierras", "requerido": true},
+                {"id": "fecha_fin", "tipo": "fecha", "label": "Fecha Fin de Movimiento de Tierras", "requerido": false},
+                {"id": "observaciones_geotecnia", "tipo": "texto", "label": "Observaciones Generales Iniciales (Geotecnia)", "requerido": false}
+            ]
+        },
+        {
+            "id": "cotas",
+            "titulo": "Cotas",
+            "campos": [
+                {"id": "cota_inicial", "tipo": "numero", "label": "Cota Inicial (Cota Topografía)", "requerido": false},
+                {"id": "cota_final", "tipo": "numero", "label": "Cota Final (Cota Diseño)", "requerido": false},
+                {"id": "cota_corona_talud_diseno", "tipo": "numero", "label": "Cota Corona Talud (Diseño)", "requerido": false},
+                {"id": "cota_corona_talud_real", "tipo": "numero", "label": "Cota Corona Talud (Real)", "requerido": false},
+                {"id": "cota_pata_talud_diseno", "tipo": "numero", "label": "Cota Pata Talud (Diseño)", "requerido": false},
+                {"id": "cota_pata_talud_real", "tipo": "numero", "label": "Cota Pata Talud (Real)", "requerido": false},
+                {"id": "pendiente_talud_diseno", "tipo": "numero", "label": "Pendiente Talud (Diseño)", "requerido": false}
+            ]
+        },
+        {
+            "id": "cantidades_volumen",
+            "titulo": "Cantidades y Volumen de Movimiento de Tierras",
+            "campos": [
+                {"id": "horometro_inicial_maq1", "tipo": "numero", "label": "Horómetro Inicial - Maquinaria 1", "requerido": false},
+                {"id": "horometro_inicial_maq2", "tipo": "numero", "label": "Horómetro Inicial - Maquinaria 2", "requerido": false},
+                {"id": "horometro_final_maq1", "tipo": "numero", "label": "Horómetro Final - Maquinaria 1", "requerido": false},
+                {"id": "horometro_final_maq2", "tipo": "numero", "label": "Horómetro Final - Maquinaria 2", "requerido": false},
+                {"id": "volumen_teorico", "tipo": "numero", "label": "Volumen Teórico (Cálculo BIM/Diseño) (m³)", "requerido": false},
+                {"id": "volumen_real", "tipo": "numero", "label": "Volumen Real (Sumatoria Volumen Volquetas) (m³)", "requerido": false}
+            ]
+        },
+        {
+            "id": "salida_residuo",
+            "titulo": "Información de Salida del Residuo",
+            "campos": [
+                {"id": "fecha_salida", "tipo": "fecha", "label": "Fecha", "requerido": false},
+                {"id": "recibo_almacen", "tipo": "texto", "label": "N° Recibo Salida Almacén", "requerido": false},
+                {"id": "contratista_salida", "tipo": "texto", "label": "Contratista", "requerido": false},
+                {"id": "placa_vehiculo", "tipo": "texto", "label": "Placa Vehículo", "requerido": false},
+                {"id": "volumen_salida", "tipo": "numero", "label": "Volumen (m³)", "requerido": false},
+                {"id": "tipo_residuo", "tipo": "texto", "label": "Tipo de Residuo", "requerido": false},
+                {"id": "recibo_botadero", "tipo": "texto", "label": "N° Recibo (Botadero)", "requerido": false},
+                {"id": "lugar_disposicion", "tipo": "texto", "label": "Nombre Lugar de Disposición Final", "requerido": false}
+            ]
+        },
+        {
+            "id": "control_final",
+            "titulo": "Control Final",
+            "campos": [
+                {"id": "visita_geotecnista", "tipo": "seleccion", "label": "Visita del Geotecnista", "opciones": ["SI", "NO"], "requerido": false},
+                {"id": "fecha_visita", "tipo": "fecha", "label": "Fecha de Visita", "requerido": false},
+                {"id": "concepto_tecnico", "tipo": "seleccion", "label": "Concepto Técnico", "opciones": ["FAVORABLE", "NO FAVORABLE"], "requerido": false},
+                {"id": "recomendaciones", "tipo": "texto", "label": "Recomendaciones Adicionales", "requerido": false}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "contratista", "label": "Contratista"},
+        {"id": "residente_obra", "label": "Residente de Obra"},
+        {"id": "interventoria", "label": "Interventoría"}
+    ]
+}

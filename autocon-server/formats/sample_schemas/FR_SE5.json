@@ -1,0 +1,70 @@
+{
+    "formulario": "FR-SE5",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "obra", "tipo": "texto", "label": "Obra", "requerido": true},
+                {"id": "ubicacion_elemento", "tipo": "texto", "label": "Ubicación del Elemento", "requerido": true},
+                {"id": "fecha", "tipo": "fecha", "label": "Fecha", "requerido": true},
+                {"id": "plano", "tipo": "texto", "label": "Plano", "requerido": true},
+                {"id": "version", "tipo": "texto", "label": "Versión", "requerido": true}
+            ]
+        },
+        {
+            "id": "antes_actividad",
+            "titulo": "Antes de Ejecutar la Actividad",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "redes_hidrosanitarias", "tipo": "aprobacion_con_fecha", "label": "Chequeo de redes hidrosanitarias", "observacion": true},
+                {"id": "red_electrica", "tipo": "aprobacion_con_fecha", "label": "Chequeo de red eléctrica (sistema de puesta a tierra)", "observacion": true},
+                {"id": "otras_redes", "tipo": "aprobacion_con_fecha", "label": "Chequeo de otras redes (gas, voz-datos, otras)", "observacion": true},
+                {"id": "remplazos", "tipo": "aprobacion_con_fecha", "label": "Remplazos", "observacion": true},
+                {"id": "estructura_soporte", "tipo": "aprobacion_con_fecha", "label": "Verificación de condiciones de estructura de soporte", "observacion": true},
+                {"id": "filtros_impermeabilizacion", "tipo": "aprobacion_con_fecha", "label": "Filtros e Impermeabilización (si aplica)", "observacion": true},
+                {"id": "verificacion_juntas", "tipo": "aprobacion_con_fecha", "label": "Verificación de juntas", "observacion": true}
+            ]
+        },
+        {
+            "id": "durante_ejecucion",
+            "titulo": "Durante la Ejecución - Armado Acero",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad", "tipo": "aprobacion_con_fecha", "label": "Cantidad", "observacion": true},
+                {"id": "longitud", "tipo": "aprobacion_con_fecha", "label": "Longitud", "observacion": true},
+                {"id": "diametro", "tipo": "aprobacion_con_fecha", "label": "Diámetro", "observacion": true},
+                {"id": "separacion_barras", "tipo": "aprobacion_con_fecha", "label": "Separación entre barras", "observacion": true},
+                {"id": "traslapos", "tipo": "aprobacion_con_fecha", "label": "Traslapos (longitud y ubicación)", "observacion": true},
+                {"id": "amarre_acero", "tipo": "aprobacion_con_fecha", "label": "Amarre de acero", "observacion": true},
+                {"id": "limpieza_acero", "tipo": "aprobacion_con_fecha", "label": "Limpieza del acero", "observacion": true},
+                {"id": "recubrimientos", "tipo": "aprobacion_con_fecha", "label": "Recubrimientos", "observacion": true}
+            ]
+        },
+        {
+            "id": "vaciado_concreto",
+            "titulo": "Vaciado de Concreto",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "fc_diseno", "tipo": "aprobacion_con_fecha", "label": "F'c de diseño", "observacion": true},
+                {"id": "asentamiento", "tipo": "aprobacion_con_fecha", "label": "Asentamiento", "observacion": true},
+                {"id": "nivel_vaciado", "tipo": "aprobacion_con_fecha", "label": "Nivel de vaciado", "observacion": true},
+                {"id": "verificacion_acabado", "tipo": "aprobacion_con_fecha", "label": "Verificación del acabado", "observacion": true}
+            ]
+        },
+        {
+            "id": "posteriores_vaciado",
+            "titulo": "Posteriores al Vaciado",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "juntas", "tipo": "aprobacion_con_fecha", "label": "Juntas", "observacion": true},
+                {"id": "curado", "tipo": "aprobacion_con_fecha", "label": "Curado", "observacion": true}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "constructor", "label": "Constructor"},
+        {"id": "supervisor", "label": "Supervisor"}
+    ]
+}
