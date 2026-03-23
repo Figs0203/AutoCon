@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from .models import UserProfile
+
+CORPORATE_EMAIL_ERROR = "Solo se permiten correos @tipinterventoria.com"
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -15,7 +16,7 @@ class RegisterSerializer(serializers.Serializer):
     def validate_email(self, value):
         email = value.strip().lower()
         if not email.endswith("@tipinterventoria.com"):
-            raise serializers.ValidationError("Solo se permiten correos @tipinterventoria.com")
+            raise serializers.ValidationError(CORPORATE_EMAIL_ERROR)
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("Este correo ya esta registrado")
         return email
@@ -52,7 +53,7 @@ class LoginSerializer(serializers.Serializer):
         password = attrs["password"]
 
         if not email.endswith("@tipinterventoria.com"):
-            raise serializers.ValidationError("Solo se permiten correos @tipinterventoria.com")
+            raise serializers.ValidationError(CORPORATE_EMAIL_ERROR)
 
         user = authenticate(username=email, password=password)
         if not user:
