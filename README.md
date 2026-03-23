@@ -270,8 +270,10 @@ npm run reset-project       # Resetear proyecto
 3. Configura `ALLOWED_HOSTS` apropiadamente
 4. Actualiza `CORS_ALLOW_ALL_ORIGINS` a dominios específicos
 5. Usa variables de entorno para información sensible
+   
+---
 
-### Ejecución
+### Ejecución ruff para Branching strategy
 
 Primero se debe instalar en el entorno de desarrollo con:
 ```bash
