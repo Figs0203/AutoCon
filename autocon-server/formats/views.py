@@ -83,6 +83,18 @@ def _validate_required_fields(schema, datos):
             if not _is_field_completed(campo, value):
                 errors.append(f"{label}: campo obligatorio")
 
+    firmas = schema.get("firmas", []) if isinstance(schema, dict) else []
+    firmas_data = datos.get("__firmas", {}) if isinstance(datos, dict) else {}
+    if not isinstance(firmas_data, dict):
+        firmas_data = {}
+
+    for firma in firmas:
+        firma_id = firma.get("id")
+        firma_label = firma.get("label", firma_id)
+        firma_value = firmas_data.get(firma_id)
+        if not _is_present(firma_value):
+            errors.append(f"{firma_label}: firma obligatoria")
+
     return errors
 
 
