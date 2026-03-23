@@ -271,6 +271,21 @@ npm run reset-project       # Resetear proyecto
 4. Actualiza `CORS_ALLOW_ALL_ORIGINS` a dominios específicos
 5. Usa variables de entorno para información sensible
 
+### Ejecución
+
+Primero se debe instalar en el entorno de desarrollo con:
+```bash
+pip install ruff
+```
+
+Se ejecutó el análisis sobre el proyecto utilizando:
+
+```bash
+ruff check .
+ruff check . --fix
+ruff format .
+```
+
 ##  Licencia
 
 [Especifica tu licencia aquí]
