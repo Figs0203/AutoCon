@@ -1,0 +1,83 @@
+{
+    "formulario": "FR-SE7",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "obra", "tipo": "texto", "label": "Obra", "requerido": true},
+                {"id": "codigo_plano", "tipo": "texto", "label": "Código Plano", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión Plano", "requerido": true},
+                {"id": "volumen_teorico", "tipo": "numero", "label": "Volumen Teórico (m³)", "requerido": false},
+                {"id": "volumen_real", "tipo": "numero", "label": "Volumen Real (m³)", "requerido": false},
+                {"id": "elemento", "tipo": "texto", "label": "Elemento", "requerido": true}
+            ]
+        },
+        {
+            "id": "excavacion",
+            "titulo": "Excavación",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "chequeo_ejes", "tipo": "aprobacion_doble", "label": "Chequeo de ejes", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "niveles_excavacion", "tipo": "aprobacion_doble", "label": "Niveles de excavación", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "solado", "tipo": "aprobacion_doble", "label": "Solado", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "limpieza", "tipo": "aprobacion_doble", "label": "Limpieza", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "geometria_seccion", "tipo": "aprobacion_doble", "label": "Geometría/Sección de la excavación", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true}
+            ]
+        },
+        {
+            "id": "acero",
+            "titulo": "Acero",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad", "tipo": "aprobacion_doble", "label": "Cantidad", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "longitud", "tipo": "aprobacion_doble", "label": "Longitud", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "diametro", "tipo": "aprobacion_doble", "label": "Diámetro", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "separacion_barras", "tipo": "aprobacion_doble", "label": "Separación entre barras", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "traslapos", "tipo": "aprobacion_doble", "label": "Traslapos (longitud y ubicación)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "amarre_acero", "tipo": "aprobacion_doble", "label": "Amarre de acero", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "limpieza_acero", "tipo": "aprobacion_doble", "label": "Limpieza del acero", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "recubrimientos", "tipo": "aprobacion_doble", "label": "Recubrimientos", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true}
+            ]
+        },
+        {
+            "id": "arranque_otros",
+            "titulo": "Verificación de Arranque/Armado de Otros Elementos (Capiteles, Muros, Columnas y demás)",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "cantidad_arranque", "tipo": "aprobacion_doble", "label": "Cantidad", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "longitud_arranque", "tipo": "aprobacion_doble", "label": "Longitud", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "diametro_arranque", "tipo": "aprobacion_doble", "label": "Diámetro", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "separacion_arranque", "tipo": "aprobacion_doble", "label": "Separación entre barras", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "traslapos_arranque", "tipo": "aprobacion_doble", "label": "Traslapos (longitud y ubicación)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "amarre_arranque", "tipo": "aprobacion_doble", "label": "Amarre de acero", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "limpieza_arranque", "tipo": "aprobacion_doble", "label": "Limpieza del acero", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "recubrimientos_arranque", "tipo": "aprobacion_doble", "label": "Recubrimientos", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "nivel_desplante", "tipo": "aprobacion_doble", "label": "Nivel de desplante del acero", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "dimensiones_elemento", "tipo": "aprobacion_doble", "label": "Dimensiones del elemento", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true}
+            ]
+        },
+        {
+            "id": "vaciado",
+            "titulo": "Autorización de Vaciado",
+            "tipo": "checklist",
+            "campos": [
+                {"id": "numero_remision", "tipo": "aprobacion_doble", "label": "N° de remisión", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "fc_diseno", "tipo": "aprobacion_doble", "label": "F'c de diseño (8000 PSI)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "proteccion_terreno", "tipo": "aprobacion_doble", "label": "Protección contra terreno (instalación polietileno)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "termocuplas", "tipo": "aprobacion_doble", "label": "Instalación de instrumentos de control temperatura (termocuplas)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "hora_llegada_mezcla", "tipo": "aprobacion_doble", "label": "Hora de llegada de la mezcla", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "temperatura_mezcla", "tipo": "aprobacion_doble", "label": "Temperatura de llegada de mezcla (entre 30°C y máximo 34°C)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "hora_fin_vaciado", "tipo": "aprobacion_doble", "label": "Hora de finalización del vaciado", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "asentamiento", "tipo": "aprobacion_doble", "label": "Asentamiento", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "vibrado", "tipo": "aprobacion_doble", "label": "Vibrado", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true},
+                {"id": "numero_muestra", "tipo": "aprobacion_doble", "label": "Muestra N° (indicar el consecutivo de la muestra)", "revisiones": ["1ra Revisión", "2da Revisión"], "observacion": true}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "constructor", "label": "Constructor"},
+        {"id": "supervisor", "label": "Supervisor"}
+    ]
+}

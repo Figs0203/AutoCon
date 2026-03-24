@@ -1,0 +1,106 @@
+{
+    "formulario": "FR-SE8",
+    "version": "1",
+    "secciones": [
+        {
+            "id": "general",
+            "titulo": "Información General",
+            "campos": [
+                {"id": "proyecto", "tipo": "texto", "label": "Proyecto", "requerido": true},
+                {"id": "constructor", "tipo": "texto", "label": "Constructor", "requerido": true},
+                {"id": "tipo_elemento", "tipo": "seleccion", "label": "Tipo de Elemento", "opciones": ["PILOTE", "MICROPILOTE"], "requerido": true},
+                {"id": "nombre_plano", "tipo": "texto", "label": "Nombre de Plano", "requerido": true},
+                {"id": "version_plano", "tipo": "texto", "label": "Versión Plano", "requerido": true},
+                {"id": "fecha_actualizacion", "tipo": "fecha", "label": "Fecha Actualización", "requerido": true},
+                {"id": "nombre_residente", "tipo": "texto", "label": "Nombre Residente", "requerido": true},
+                {"id": "nombre_operario", "tipo": "texto", "label": "Nombre Operario", "requerido": true},
+                {"id": "observaciones", "tipo": "texto", "label": "Observaciones", "requerido": false}
+            ]
+        },
+        {
+            "id": "cotas",
+            "titulo": "Cotas",
+            "campos": [
+                {"id": "ubicacion_ejes", "tipo": "texto", "label": "Ubicación Ejes ARQ/EST", "requerido": false},
+                {"id": "ubicacion_coordenadas", "tipo": "texto", "label": "Ubicación Coordenadas", "requerido": false},
+                {"id": "npa_cota_terreno", "tipo": "numero", "label": "NPA (Cota Terreno)", "requerido": false},
+                {"id": "cota_sup_diseno", "tipo": "numero", "label": "Cota Superior Pilote (Diseño)", "requerido": false},
+                {"id": "cota_inf_diseno", "tipo": "numero", "label": "Cota Inferior Pilote (Diseño)", "requerido": false},
+                {"id": "diametro_pedestal", "tipo": "numero", "label": "Ø Pedestal (m)", "requerido": false},
+                {"id": "diametro_exterior", "tipo": "numero", "label": "Ø Exterior (m)", "requerido": false},
+                {"id": "profundidad_diseno", "tipo": "numero", "label": "Profundidad Diseño (m)", "requerido": false},
+                {"id": "long_excav_pedestal", "tipo": "numero", "label": "Long. Excav. Pedestal (m)", "requerido": false},
+                {"id": "long_excav_normal", "tipo": "numero", "label": "Long. Excav. Normal (m)", "requerido": false}
+            ]
+        },
+        {
+            "id": "longitudes_dimensiones",
+            "titulo": "Longitudes y Dimensiones",
+            "campos": [
+                {"id": "area_pedestal", "tipo": "numero", "label": "Área Pedestal (m²)", "requerido": false},
+                {"id": "area_pilote_normal", "tipo": "numero", "label": "Área Pilote Normal (m²)", "requerido": false},
+                {"id": "vol_pilote", "tipo": "numero", "label": "Vol. Pilote (m³)", "requerido": false},
+                {"id": "pres_inyeccion", "tipo": "numero", "label": "Presión Inyección (psi)", "requerido": false},
+                {"id": "relacion_ac", "tipo": "numero", "label": "Relación A/C", "requerido": false},
+                {"id": "reinyeccion", "tipo": "aprobacion_con_fecha", "label": "Reinyección", "observacion": true},
+                {"id": "capacidad_micropilote", "tipo": "numero", "label": "Capacidad Micropilote", "requerido": false},
+                {"id": "cantidad_total", "tipo": "numero", "label": "Cantidad de Micropilote/Pilote", "requerido": false},
+                {"id": "cantidad_por_eje", "tipo": "numero", "label": "Cantidad por Eje", "requerido": false}
+            ]
+        },
+        {
+            "id": "revision_insitu",
+            "titulo": "Revisión In-Situ",
+            "campos": [
+                {"id": "fecha_revision", "tipo": "fecha", "label": "Fecha", "requerido": false},
+                {"id": "pilote_numero", "tipo": "texto", "label": "Pilote N°", "requerido": false},
+                {"id": "nivel_freatico", "tipo": "numero", "label": "Nivel Freático", "requerido": false},
+                {"id": "profundidad", "tipo": "numero", "label": "Profundidad (m)", "requerido": false},
+                {"id": "presion_1era_inyeccion", "tipo": "numero", "label": "Presión 1era Inyección (psi)", "requerido": false},
+                {"id": "presion_2da_inyeccion", "tipo": "numero", "label": "Presión 2da Inyección (psi)", "requerido": false},
+                {"id": "descripcion_suelo", "tipo": "texto", "label": "Registro Fotográfico/Descripción de suelo encontrado", "requerido": false}
+            ]
+        },
+        {
+            "id": "excavacion",
+            "titulo": "Excavación",
+            "campos": [
+                {"id": "fecha_inicio_excav", "tipo": "fecha", "label": "Fecha Inicio", "requerido": false},
+                {"id": "fecha_fin_excav", "tipo": "fecha", "label": "Fecha Final", "requerido": false},
+                {"id": "profundidad_excav", "tipo": "numero", "label": "Profundidad (m)", "requerido": false},
+                {"id": "ancho_excav", "tipo": "numero", "label": "Ancho", "requerido": false},
+                {"id": "plomo_excav", "tipo": "aprobacion_con_fecha", "label": "Plomo", "observacion": true}
+            ]
+        },
+        {
+            "id": "refuerzo",
+            "titulo": "Refuerzo",
+            "campos": [
+                {"id": "cantidad_vertical", "tipo": "numero", "label": "Cantidad Vertical", "requerido": false},
+                {"id": "cantidad_aros", "tipo": "numero", "label": "Cantidad Aros", "requerido": false},
+                {"id": "cantidad_ganchos", "tipo": "numero", "label": "Cantidad Ganchos/Estribos", "requerido": false},
+                {"id": "longitud_refuerzo", "tipo": "numero", "label": "Longitud", "requerido": false},
+                {"id": "separacion_refuerzo", "tipo": "numero", "label": "Separación", "requerido": false},
+                {"id": "limpieza_refuerzo", "tipo": "aprobacion_con_fecha", "label": "Limpieza", "observacion": true},
+                {"id": "fecha_instalacion", "tipo": "fecha", "label": "Fecha Instalación", "requerido": false}
+            ]
+        },
+        {
+            "id": "lechada",
+            "titulo": "Lechada",
+            "campos": [
+                {"id": "cantidad_cemento", "tipo": "numero", "label": "Cantidad (Consumo Cemento)", "requerido": false},
+                {"id": "tiempo_lechada", "tipo": "numero", "label": "Tiempo (h)", "requerido": false},
+                {"id": "fecha_lechada", "tipo": "fecha", "label": "Fecha (dd/mm/aaaa)", "requerido": false},
+                {"id": "llenado", "tipo": "aprobacion_con_fecha", "label": "Llenado", "observacion": true},
+                {"id": "primera_inyeccion", "tipo": "aprobacion_con_fecha", "label": "1era Inyección", "observacion": true},
+                {"id": "segunda_inyeccion", "tipo": "aprobacion_con_fecha", "label": "2da Inyección", "observacion": true}
+            ]
+        }
+    ],
+    "firmas": [
+        {"id": "operador", "label": "Operador"},
+        {"id": "supervisor", "label": "Supervisor"},
+        {"id": "residente", "label": "Residente"}
+    ]
+}
