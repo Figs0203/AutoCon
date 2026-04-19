@@ -6,6 +6,7 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,7 +14,7 @@ import { useRouter } from "expo-router";
 
 import { formatsStyles as styles } from "../src/styles/formats";
 import { Colors } from "../src/styles/colors";
-import { getSubmissions } from "../src/config/ApiServices";
+import { getSubmissions, deleteSubmission } from "../src/config/ApiServices";
 
 import FormatsHeader from "../components/formats/FormatsHeader";
 import FilterPills, { FilterStatus } from "../components/formats/FilterPills";
@@ -62,6 +63,41 @@ export default function FormatsScreen() {
     setRefreshing(true);
     fetchData();
   }, [fetchData]);
+
+  // ── Eliminar formulario con confirmación ─────────────────────
+  const handleDelete = useCallback(
+    (item: Submission) => {
+      Alert.alert(
+        "Eliminar formulario",
+        `¿Estás seguro de que deseas eliminar "#${item.id} - ${item.titulo}"?\n\nEsta acción no se puede deshacer.`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Eliminar",
+            style: "destructive",
+            onPress: async () => {
+              // Actualización optimista: quitar de la lista de inmediato
+              const prevSubmissions = submissions;
+              setSubmissions((prev) => prev.filter((s) => s.id !== item.id));
+
+              try {
+                await deleteSubmission(item.id);
+              } catch (error: any) {
+                // Revertir si falla
+                setSubmissions(prevSubmissions);
+                Alert.alert(
+                  "Error al eliminar",
+                  error.message ||
+                    "No se pudo eliminar el formulario. Intenta de nuevo."
+                );
+              }
+            },
+          },
+        ]
+      );
+    },
+    [submissions]
+  );
 
   // Aplicar filtros locales (Búsqueda + Estado)
   const filteredData = useMemo(() => {
@@ -153,6 +189,7 @@ export default function FormatsScreen() {
                 status={item.estado}
                 dateLabel={formatRelativeDate(item.fecha)}
                 onPress={() => router.push(`/formats/${item.id}?type=instance` as any)}
+                onDelete={() => handleDelete(item)}
               />
             )}
           />

@@ -15,6 +15,8 @@ interface RecentItemProps {
   dateLabel: string;
   /** Callback al presionar */
   onPress?: () => void;
+  /** Callback al presionar el botón de eliminar */
+  onDelete?: () => void;
 }
 
 /**
@@ -75,6 +77,7 @@ export default function RecentItem({
   status,
   dateLabel,
   onPress,
+  onDelete,
 }: RecentItemProps) {
   const badge = getBadgeConfig(status);
 
@@ -104,6 +107,27 @@ export default function RecentItem({
           </View>
         </View>
       </View>
+      {onDelete ? (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: "#FEE2E2",
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 8,
+          }}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="trash-outline" size={18} color="#DC2626" />
+        </TouchableOpacity>
+      ) : null}
       {onPress ? (
         <Ionicons
           name="chevron-forward"
