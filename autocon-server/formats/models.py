@@ -36,3 +36,27 @@ class FormularioInstancia(models.Model):
     def __str__(self):
         # return f"{self.formato.codigo} — {self.usuario.username} — {self.estado}"
         return f"{self.formato.codigo} — {self.estado}"
+
+
+class ImagenFormulario(models.Model):
+    """Imagen adjunta a una instancia de formulario."""
+
+    MAX_IMAGES_PER_INSTANCE = 5
+    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+    ALLOWED_TYPES = ("image/jpeg", "image/png")
+
+    instancia = models.ForeignKey(
+        FormularioInstancia,
+        on_delete=models.CASCADE,
+        related_name="imagenes",
+    )
+    imagen = models.ImageField(upload_to="formularios/imagenes/%Y/%m/")
+    nombre_original = models.CharField(max_length=255)
+    tamano = models.PositiveIntegerField(help_text="Tamaño en bytes")
+    subida_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-subida_en"]
+
+    def __str__(self):
+        return f"Imagen #{self.pk} — {self.nombre_original}"

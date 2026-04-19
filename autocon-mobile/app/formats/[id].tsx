@@ -3,9 +3,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../../src/styles/global";
-import { Formato } from "../../src/types";
+import { Formato, ImageInfo, LocalImage } from "../../src/types";
 import SignatureField from "../../components/formats/SignatureField";
-import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser } from "../../src/config/ApiServices";
+import ImageAttachment from "../../components/formats/ImageAttachment";
+import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser, uploadImages, deleteAttachedImage } from "../../src/config/ApiServices";
 
 type Respuestas = Record<string, any>;
 const SIGNATURES_KEY = "__firmas";
@@ -21,6 +22,10 @@ export default function DetalleFormato() {
   const [enviandoBorrador, setEnviandoBorrador] = useState(false);
   const [enviandoCompletado, setEnviandoCompletado] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  
+  // ── Imágenes
+  const [serverImages, setServerImages] = useState<ImageInfo[]>([]);
+  const [pendingImages, setPendingImages] = useState<LocalImage[]>([]);
 
   const isInitialLoad = useRef(true);
   const localDraftKey = `draft_${type}_${id}`;
@@ -45,6 +50,7 @@ export default function DetalleFormato() {
           baseRespuestas = instanciaObj.datos || {};
           currentEstado = instanciaObj.estado;
           setEstado(currentEstado);
+          setServerImages(instanciaObj.imagenes || []);
           
           const formatoIdObj = typeof instanciaObj.formato === 'object' ? instanciaObj.formato.id : instanciaObj.formato;
           const res = await fetch(`${API_URL}/formats/${formatoIdObj}/`);
@@ -283,6 +289,17 @@ export default function DetalleFormato() {
     return errors;
   }, [formato, respuestas]);
 
+  // ─── Manejo de Eliminación de Imágenes en el Servidor ──────────────────────
+  const handleServerImageDelete = async (imageId: number) => {
+    if (type !== "instance" || !id) return;
+    try {
+      await deleteAttachedImage(id, imageId);
+      setServerImages(prev => prev.filter(img => img.id !== imageId));
+    } catch (e: any) {
+      Alert.alert("Error", e.message || "No se pudo eliminar la imagen del servidor.");
+    }
+  };
+
   // ─── Guardar en la Base de Datos Oficial ──────────────────────────────────
   const handleGuardar = async (nuevoEstado: "BORRADOR" | "ENVIADO") => {
     if (!id) return;
@@ -326,11 +343,26 @@ export default function DetalleFormato() {
     else setEnviandoCompletado(true);
 
     try {
+      let submitResultId = id;
+      
       if (type === "instance") {
         await updateSubmission(id, respuestas, nuevoEstado);
       } else {
-        await submitForm(id, respuestas, nuevoEstado);
+        const result = await submitForm(id, respuestas, nuevoEstado);
+        submitResultId = result.id;
       }
+      
+      // Intentar subir imágenes pendientes si las hay
+      if (pendingImages.length > 0) {
+        try {
+          await uploadImages(submitResultId, pendingImages);
+          setPendingImages([]); // Limpiar tras subir exitosamente
+        } catch (imgError: any) {
+          Alert.alert("Aviso importante", `El formulario se guardó (${nuevoEstado}), pero hubo un error subiendo algunas imágenes: ${imgError.message}`);
+          return; // No salir de la pantalla si las imgs fallaron para que pueda reintentar
+        }
+      }
+
       setEstado(nuevoEstado);
       
       // Limpiar el borrador local ya que se guardó en la base de datos central
@@ -643,6 +675,16 @@ export default function DetalleFormato() {
           </View>
         )}
         
+        {/* ── Adjuntos Fotográficos ────────────────────────────── */}
+        <ImageAttachment
+          readonly={readonly}
+          images={serverImages}
+          pendingImages={pendingImages}
+          onPendingChange={setPendingImages}
+          onServerImageDelete={handleServerImageDelete}
+          isSubmitting={enviandoBorrador || enviandoCompletado}
+        />
+
         {/* ── Botones de Gestión ───────────────────────────────── */}
         {!readonly && (
           <View style={{ marginTop: 16 }}>

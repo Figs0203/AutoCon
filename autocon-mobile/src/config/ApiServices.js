@@ -115,6 +115,42 @@ export const deleteSubmission = (instanciaId) => {
     return httpService(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/`, 'DELETE', null, true);
 };
 
+// ── Imágenes ──────────────────────────────────────────────────
+
+export const uploadImages = async (instanciaId, localImages) => {
+    const url = `${API_URL}${ENDPOINTS.SUBMISSIONS}${instanciaId}/images/`;
+    const token = await getAuthToken();
+
+    const formData = new FormData();
+    localImages.forEach((img) => {
+        formData.append("imagenes", {
+            uri: img.uri,
+            type: img.mimeType || "image/jpeg",
+            name: img.fileName,
+        });
+    });
+
+    const headers = {};
+    if (token) headers.Authorization = `Token ${token}`;
+    // Fetch en React Native configura correctamente el Content-Type multipart/form-data con sus boundaries
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data?.detail || "Error subiendo la(s) imagen(es)");
+    }
+    return data;
+};
+
+export const deleteAttachedImage = (instanciaId, imagenId) => {
+    return httpService(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/images/${imagenId}/`, 'DELETE', null, true);
+};
+
 export const getDashboardStats = () => httpServiceAuthGet(ENDPOINTS.DASHBOARD);
 export const getRecentSubmissions = () => httpServiceAuthGet(ENDPOINTS.RECENT);
 export const getSubmissions = () => httpServiceAuthGet(ENDPOINTS.SUBMISSIONS);

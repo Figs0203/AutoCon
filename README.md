@@ -72,6 +72,22 @@ Opciones para ejecutar la app:
 - Presiona `a` para Android Emulator
 - Escanea el QR con Expo Go en tu dispositivo móvil
 
+### 4. Actualización para otros Desarrolladores (Soporte de Imágenes)
+
+Si acabas de hacer `git pull` y obtuviste la nueva funcionalidad para adjuntar imágenes a los formularios, asegúrate de realizar estos pasos para que tu entorno local funcione correctamente:
+
+**En el Backend (`autocon-server`):**
+1. Instala la nueva dependencia (Pillow para manejo de imágenes):
+   `pip install -r requirements.txt`
+2. Aplica las nuevas migraciones a tu base de datos local (tabla `ImagenFormulario`):
+   `python manage.py migrate`
+
+**En el Frontend (`autocon-mobile`):**
+1. Instala las nuevas librerías nativas de Expo:
+   `npm install`
+   *(Esto instalará `expo-image-picker` y `expo-image-manipulator`)*
+2. Es obligatorio reiniciar el servidor de Expo si lo tenías corriendo, presionando `Ctrl+C` y volviendo a ejecutar `npx expo start`, ya que se agregaron módulos nativos.
+
 ## Configuración
 
 ### Backend

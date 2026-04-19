@@ -10,4 +10,13 @@ urlpatterns = [
     path("formats/recent/", views.recent_submissions),
     path("formats/submissions/", views.user_submissions),
     path("formats/submissions/<int:pk>/", views.detalle_instancia),
+    # Imágenes
+    path(
+        "formats/submissions/<int:instancia_pk>/images/",
+        views.subir_imagenes,
+    ),
+    path(
+        "formats/submissions/<int:instancia_pk>/images/<int:imagen_pk>/",
+        views.eliminar_imagen,
+    ),
 ]

@@ -6,8 +6,12 @@ from rest_framework.response import Response
 
 from users.models import UserProfile
 
-from .models import FormatoTecnico, FormularioInstancia
-from .serializers import FormatoTecnicoSerializer, FormularioInstanciaSerializer
+from .models import FormatoTecnico, FormularioInstancia, ImagenFormulario
+from .serializers import (
+    FormatoTecnicoSerializer,
+    FormularioInstanciaSerializer,
+    ImagenFormularioSerializer,
+)
 
 
 def _is_present(value):
@@ -252,7 +256,11 @@ def detalle_instancia(request, pk):
 
     if request.method == "GET":
         serializer = FormularioInstanciaSerializer(instancia)
-        return Response(serializer.data)
+        data = serializer.data
+        data["imagenes"] = ImagenFormularioSerializer(
+            instancia.imagenes.all(), many=True, context={"request": request}
+        ).data
+        return Response(data)
 
     elif request.method == "PUT":
         # Extraemos los campos permitidos para actualizar
@@ -283,3 +291,124 @@ def detalle_instancia(request, pk):
     elif request.method == "DELETE":
         instancia.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ── Imágenes de instancias ────────────────────────────────────────
+
+
+def _get_instancia_for_images(request, instancia_pk):
+    """Helper: valida permisos y retorna la instancia o una Response de error."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SUPERVISOR_TECNICO:
+        return Response(
+            {"detail": "Solo los supervisores pueden gestionar imágenes"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        return FormularioInstancia.objects.get(pk=instancia_pk, usuario=request.user)
+    except FormularioInstancia.DoesNotExist:
+        return Response(
+            {"detail": "Formulario no encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def subir_imagenes(request, instancia_pk):
+    """Sube una o varias imágenes y las asocia a la instancia indicada."""
+    result = _get_instancia_for_images(request, instancia_pk)
+    if isinstance(result, Response):
+        return result
+    instancia = result
+
+    archivos = request.FILES.getlist("imagenes")
+    if not archivos:
+        return Response(
+            {"detail": "No se enviaron imágenes."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Validar límite de cantidad
+    cantidad_actual = instancia.imagenes.count()
+    if cantidad_actual + len(archivos) > ImagenFormulario.MAX_IMAGES_PER_INSTANCE:
+        disponibles = ImagenFormulario.MAX_IMAGES_PER_INSTANCE - cantidad_actual
+        return Response(
+            {
+                "detail": (
+                    f"Se alcanzó el límite máximo de "
+                    f"{ImagenFormulario.MAX_IMAGES_PER_INSTANCE} imágenes por formulario. "
+                    f"Puedes agregar {disponibles} más."
+                )
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Validar cada archivo individualmente
+    for archivo in archivos:
+        # Validar tipo MIME
+        if archivo.content_type not in ImagenFormulario.ALLOWED_TYPES:
+            return Response(
+                {
+                    "detail": (
+                        f'Formato no permitido en "{archivo.name}". '
+                        f"Solo se aceptan JPG y PNG."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validar tamaño
+        if archivo.size > ImagenFormulario.MAX_FILE_SIZE:
+            max_mb = ImagenFormulario.MAX_FILE_SIZE // (1024 * 1024)
+            return Response(
+                {
+                    "detail": (
+                        f'La imagen "{archivo.name}" excede el tamaño '
+                        f"máximo de {max_mb}MB."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # Crear los registros
+    creadas = []
+    for archivo in archivos:
+        img = ImagenFormulario.objects.create(
+            instancia=instancia,
+            imagen=archivo,
+            nombre_original=archivo.name,
+            tamano=archivo.size,
+        )
+        creadas.append(img)
+
+    serializer = ImagenFormularioSerializer(
+        creadas, many=True, context={"request": request}
+    )
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def eliminar_imagen(request, instancia_pk, imagen_pk):
+    """Elimina una imagen específica de una instancia."""
+    result = _get_instancia_for_images(request, instancia_pk)
+    if isinstance(result, Response):
+        return result
+    instancia = result
+
+    try:
+        imagen = instancia.imagenes.get(pk=imagen_pk)
+    except ImagenFormulario.DoesNotExist:
+        return Response(
+            {"detail": "Imagen no encontrada."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    # Eliminar archivo físico del disco
+    if imagen.imagen:
+        imagen.imagen.delete(save=False)
+
+    imagen.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
