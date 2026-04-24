@@ -17,7 +17,7 @@ const getApiUrl = () => {
         return `http://${ip}:8000`;
     }
 
-    return 'http://localhost:8000';
+    return 'http://10.165.122.171:8000';
 };
 
 export const API_URL = getApiUrl();
