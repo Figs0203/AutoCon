@@ -102,19 +102,24 @@ export default function FormatsScreen() {
   // Aplicar filtros locales (Búsqueda + Estado)
   const filteredData = useMemo(() => {
     return submissions.filter((item) => {
-      // 1. Filtro por texto
+      // 1. Filtro por texto (título o código)
       const lowerQuery = searchQuery.toLowerCase();
       const matchesSearch =
         item.titulo.toLowerCase().includes(lowerQuery) ||
         item.codigo.toLowerCase().includes(lowerQuery);
       if (!matchesSearch) return false;
 
-      // 2. Filtro por pill
-      if (activeFilter === "Completados") return item.estado === "ENVIADO";
-      if (activeFilter === "Pendientes") return item.estado === "BORRADOR";
-      if (activeFilter === "En Progreso") return item.estado === "BORRADOR"; // Se asume igual
+      // 2. Filtro por estado
+      if (activeFilter === "Completados") {
+        return item.estado === "ENVIADO";
+      }
       
-      return true; // "Todos"
+      if (activeFilter === "Pendientes" || activeFilter === "En Progreso") {
+        return item.estado === "BORRADOR";
+      }
+
+      // "Todos"
+      return true;
     });
   }, [submissions, searchQuery, activeFilter]);
 
