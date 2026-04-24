@@ -25,6 +25,14 @@ class FormularioInstancia(models.Model):
 
     formato = models.ForeignKey(FormatoTecnico, on_delete=models.PROTECT)
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    nombre_personalizado = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Nombre personalizado que el usuario le da a esta instancia (ej: Torre 4 - Eje B)"
+    )
+
     datos = models.JSONField()  # Respuestas del formulario
     estado = models.CharField(
         max_length=20,

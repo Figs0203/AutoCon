@@ -13,7 +13,10 @@ class FormularioInstanciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormularioInstancia
         fields = "__all__"
-        read_only_fields = ["usuario"]
+        read_only_fields = ["usuario", "fecha"]
+        extra_kwargs = {
+            'nombre_personalizado': {'required': False}  # No obligatorio al crear
+        }
 
 
 class ImagenFormularioSerializer(serializers.ModelSerializer):

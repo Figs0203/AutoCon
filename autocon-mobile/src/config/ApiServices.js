@@ -17,7 +17,7 @@ const getApiUrl = () => {
         return `http://${ip}:8000`;
     }
 
-    return 'http://localhost:8000';
+    return 'http://10.165.122.171:8000';
 };
 
 export const API_URL = getApiUrl();
@@ -87,11 +87,12 @@ export const httpServiceAuthPost = (endpoint, body) => httpService(endpoint, 'PO
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
 
 // Guardar nueva instancia
-export const submitForm = (formatoId, datos, estado = "BORRADOR") => {
+export const submitForm = (formatoId, datos, estado = "BORRADOR", nombrePersonalizado = null) => {
     const request = {
         formato: Number(formatoId),
         estado: estado,
         datos: datos,
+        nombre_personalizado: nombrePersonalizado,
     };
     return httpServiceAuthPost(ENDPOINTS.SUBMIT_FORM, request);
 };
@@ -102,10 +103,11 @@ export const getSubmissionDetail = (instanciaId) => {
 };
 
 // Actualizar un submission existente
-export const updateSubmission = (instanciaId, datos, estado) => {
+export const updateSubmission = (instanciaId, datos, estado, nombrePersonalizado = null) => {
     const request = {
         estado: estado,
         datos: datos,
+        nombre_personalizado: nombrePersonalizado,
     };
     return httpService(`${ENDPOINTS.SUBMISSIONS}${instanciaId}/`, 'PUT', request, true);
 };

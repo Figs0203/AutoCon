@@ -7,6 +7,7 @@ import { Formato, ImageInfo, LocalImage } from "../../src/types";
 import SignatureField from "../../components/formats/SignatureField";
 import ImageAttachment from "../../components/formats/ImageAttachment";
 import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser, uploadImages, deleteAttachedImage } from "../../src/config/ApiServices";
+import { Ionicons } from "@expo/vector-icons";
 
 type Respuestas = Record<string, any>;
 const SIGNATURES_KEY = "__firmas";
@@ -26,6 +27,10 @@ export default function DetalleFormato() {
   // ── Imágenes
   const [serverImages, setServerImages] = useState<ImageInfo[]>([]);
   const [pendingImages, setPendingImages] = useState<LocalImage[]>([]);
+
+  // ──Nombre personalizado editable
+  const [nombrePersonalizado, setNombrePersonalizado] = useState<string>("");
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const isInitialLoad = useRef(true);
   const localDraftKey = `draft_${type}_${id}`;
@@ -49,6 +54,7 @@ export default function DetalleFormato() {
           const instanciaObj = await getSubmissionDetail(id);
           baseRespuestas = instanciaObj.datos || {};
           currentEstado = instanciaObj.estado;
+          setNombrePersonalizado(instanciaObj.nombre_personalizado || "");
           setEstado(currentEstado);
           setServerImages(instanciaObj.imagenes || []);
           
@@ -57,8 +63,11 @@ export default function DetalleFormato() {
           setFormato(await res.json());
         } else {
           const res = await fetch(`${API_URL}/formats/${id}/`);
-          setFormato(await res.json());
+          const formatoData = await res.json();
+          setFormato(formatoData);
           setEstado("BORRADOR");
+          
+          setNombrePersonalizado(formatoData.nombre || "");
         }
 
         // Si el cuestionario no está finalizado, revisar si hay un borrador local más reciente
@@ -300,11 +309,37 @@ export default function DetalleFormato() {
     }
   };
 
+  const validarNombrePersonalizado = (nombre: string): string | null => {
+    const trimmed = nombre.trim();
+    
+    if (trimmed.length === 0) {
+      return "El nombre del formulario no puede estar vacío.";
+    }
+    if (trimmed.length < 3) {
+      return "El nombre debe tener al menos 3 caracteres.";
+    }
+    if (trimmed.length > 150) {
+      return "El nombre es demasiado largo (máximo 150 caracteres).";
+    }
+
+    if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-.,()]+$/.test(trimmed)) {
+      return "El nombre contiene caracteres no permitidos.";
+    }
+    return null;
+  };
+
   // ─── Guardar en la Base de Datos Oficial ──────────────────────────────────
   const handleGuardar = async (nuevoEstado: "BORRADOR" | "ENVIADO") => {
     if (!id) return;
 
     setSubmitError("");
+
+    const errorNombre = validarNombrePersonalizado(nombrePersonalizado);
+    if (errorNombre) {
+      setSubmitError(errorNombre);
+      Alert.alert("Nombre inválido", errorNombre);
+      return;
+    }
 
     if (nuevoEstado === "ENVIADO") {
       const validationErrors = collectRequiredValidationErrors();
@@ -344,13 +379,15 @@ export default function DetalleFormato() {
 
     try {
       let submitResultId = id;
+
+      const payloadNombre = nombrePersonalizado?.trim() || null;
       
       if (type === "instance") {
-        await updateSubmission(id, respuestas, nuevoEstado);
-      } else {
-        const result = await submitForm(id, respuestas, nuevoEstado);
-        submitResultId = result.id;
-      }
+        await updateSubmission(id, respuestas, nuevoEstado, payloadNombre);
+        } else {
+            const result = await submitForm(id, respuestas, nuevoEstado, payloadNombre);
+            submitResultId = result.id;
+        }
       
       // Intentar subir imágenes pendientes si las hay
       if (pendingImages.length > 0) {
@@ -388,14 +425,68 @@ export default function DetalleFormato() {
     );
   }
 
-  // Si ya está completado, idealmente se mostraría en modo sólo lectura,
-  // pero por ahora mantenemos el formulario igual o ligeramente alterado.
+
   const readonly = estado === "ENVIADO";
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.titulo}>{type === "instance" ? `#${id} - ` : ""}{formato.nombre}</Text>
-      <Text style={styles.textoGris}>{formato.codigo} - {type === "instance" ? `Editando (${estado})` : "Nuevo Registro"}</Text>
+      <View style={{ 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        paddingHorizontal: 16, 
+        paddingTop: 16,
+        paddingBottom: 8,
+      }}>
+        
+        {isEditingName ? (
+          <TextInput
+            style={{
+              flex: 1,
+              fontSize: 22,
+              fontWeight: '700',
+              color: '#1F2937',
+              paddingVertical: 4,
+              borderBottomWidth: 2,
+              borderBottomColor: '#3B82F6',
+            }}
+            value={nombrePersonalizado}
+            onChangeText={setNombrePersonalizado}
+            onBlur={() => setIsEditingName(false)}
+            autoFocus
+            placeholder="Nombre personalizado del formulario..."
+            placeholderTextColor="#9CA3AF"
+          />
+        ) : (
+          <Text style={[styles.titulo, { flex: 1 }]}>
+            {nombrePersonalizado || formato.nombre}
+          </Text>
+        )}
+
+        {!readonly && (
+          <TouchableOpacity 
+            onPress={() => setIsEditingName(!isEditingName)}
+            style={{ 
+              marginLeft: 20,                 
+              padding: 8, 
+              borderRadius: 50,
+              backgroundColor: '#F8FAFC',
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons 
+              name={isEditingName ? "checkmark" : "pencil"} 
+              size={24} 
+              color="#3B82F6" 
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <Text style={[styles.textoGris, { paddingHorizontal: 16, marginBottom: 16 }]}>
+        {formato.codigo} - {type === "instance" ? `Editando (${estado})` : "Nuevo Registro"}
+      </Text>
 
       <View style={{ marginBottom: 40 }} pointerEvents={readonly ? "none" : "auto"}>
         {formato.schema.secciones.map((seccion: any) => (

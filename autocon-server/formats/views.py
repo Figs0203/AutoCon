@@ -202,7 +202,7 @@ def recent_submissions(request):
     data = [
         {
             "id": inst.id,
-            "titulo": inst.formato.nombre,
+            "titulo": inst.nombre_personalizado or inst.formato.nombre,
             "codigo": inst.formato.codigo,
             "estado": inst.estado,
             "fecha": inst.fecha.isoformat(),
@@ -225,7 +225,7 @@ def user_submissions(request):
     data = [
         {
             "id": inst.id,
-            "titulo": inst.formato.nombre,
+            "titulo": inst.nombre_personalizado or inst.formato.nombre,
             "codigo": inst.formato.codigo,
             "estado": inst.estado,
             "fecha": inst.fecha.isoformat(),
@@ -260,12 +260,17 @@ def detalle_instancia(request, pk):
         data["imagenes"] = ImagenFormularioSerializer(
             instancia.imagenes.all(), many=True, context={"request": request}
         ).data
+
+        data["nombre_personalizado"] = instancia.nombre_personalizado
+
         return Response(data)
 
     elif request.method == "PUT":
         # Extraemos los campos permitidos para actualizar
         datos = request.data.get("datos", instancia.datos)
         estado = request.data.get("estado", instancia.estado)
+
+        nombre_personalizado = request.data.get("nombre_personalizado")
 
         if estado == FormularioInstancia.ENVIADO:
             validation_errors = _validate_required_fields(
@@ -283,6 +288,9 @@ def detalle_instancia(request, pk):
 
         instancia.datos = datos
         instancia.estado = estado
+        if nombre_personalizado is not None:
+            instancia.nombre_personalizado = nombre_personalizado
+
         instancia.save()
 
         serializer = FormularioInstanciaSerializer(instancia)
