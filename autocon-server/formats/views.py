@@ -587,3 +587,37 @@ def get_image_from_base64(b64_string):
         return ImageReader(BytesIO(image_bytes))
     except:
         return None
+
+# ── Socios ────────────────────────────────────────────────────────
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def socio_formularios(request):
+    """Retorna todos los formularios (ENVIADOS y BORRADORES) para que los Socios puedan revisarlos."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SOCIOS:
+        return Response(
+            {"detail": "Solo los Socios pueden acceder a esta información"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Obtener todos los formularios (tanto ENVIADO como BORRADOR)
+    formularios = (
+        FormularioInstancia.objects.all()
+        .select_related("formato", "usuario")
+        .order_by("-fecha")
+    )
+
+    data = [
+        {
+            "id": inst.id,
+            "nombre_personalizado": inst.nombre_personalizado or inst.formato.nombre,
+            "codigo": inst.formato.codigo,
+            "supervisor": inst.usuario.email,
+            "fecha": inst.fecha.isoformat(),
+            "estado": inst.estado,
+        }
+        for inst in formularios
+    ]
+    return Response(data)
