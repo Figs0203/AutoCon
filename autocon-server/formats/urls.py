@@ -19,4 +19,5 @@ urlpatterns = [
         "formats/submissions/<int:instancia_pk>/images/<int:imagen_pk>/",
         views.eliminar_imagen,
     ),
+    path("formats/download/<int:pk>/", views.descargar_formulario),
 ]
