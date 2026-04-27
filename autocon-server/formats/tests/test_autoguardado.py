@@ -45,9 +45,9 @@ class TestAutoGuardadoFormulario:
         return client
 
     # ---------------------------------------------------------------
-    # CP-12 — Guardado automático (HAPPY PATH)
+    # CP-09 — Guardado automático (HAPPY PATH)
     # ---------------------------------------------------------------
-    def test_CP12_autoguardado_exitoso(self):
+    def test_CP09_autoguardado_exitoso(self):
         """El sistema guarda automáticamente los cambios del formulario."""
         client = self._client()
         url = f"/formats/submissions/{self.instancia.pk}/"
@@ -60,9 +60,9 @@ class TestAutoGuardadoFormulario:
         assert self.instancia.datos["campo"] == "nuevo valor"
 
     # ---------------------------------------------------------------
-    # CP-13 — Recuperar progreso guardado (HAPPY PATH)
+    # CP-11 — Recuperar progreso guardado (HAPPY PATH)
     # ---------------------------------------------------------------
-    def test_CP13_recuperar_progreso(self):
+    def test_CP11_recuperar_progreso(self):
         """El sistema recupera el progreso guardado al reabrir la instancia."""
         client = self._client()
         url = f"/formats/submissions/{self.instancia.pk}/"
@@ -75,9 +75,9 @@ class TestAutoGuardadoFormulario:
         assert "imagenes" in response.data
 
     # ---------------------------------------------------------------
-    # CP-14 — Error en guardado automático (FLUJO ALTERNATIVO)
+    #  Error en guardado automático 
     # ---------------------------------------------------------------
-    def test_CP14_error_autoguardado_id_invalido(self):
+    def test_error_autoguardado_id_invalido(self):
         """El sistema responde 404 si se intenta guardar una instancia inexistente."""
         client = self._client()
         url = "/formats/submissions/999999/"
@@ -87,9 +87,9 @@ class TestAutoGuardadoFormulario:
         assert "error" in response.data
 
     # ---------------------------------------------------------------
-    # CP-15 — Persistencia tras cierre/reapertura (FLUJO ALTERNATIVO)
+    # CP-19 — Persistencia tras cierre/reapertura (FLUJO ALTERNATIVO)
     # ---------------------------------------------------------------
-    def test_CP15_persistencia_datos(self):
+    def test_CP19_persistencia_datos(self):
         """
         Simula cierre inesperado: el usuario guarda y luego "vuelve a entrar".
         Los datos deben seguir en la base de datos.

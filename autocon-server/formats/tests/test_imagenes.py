@@ -65,9 +65,9 @@ class TestImagenesFormulario:
         return client
 
     # ---------------------------------------------------------------
-    # CP1 — Subir imagen válida (HAPPY PATH)
+    #  Subir imagen válida (HAPPY PATH)
     # ---------------------------------------------------------------
-    def test_CP1_subir_imagen_valida(self):
+    def test_subir_imagen_valida(self):
         """El sistema permite subir una imagen válida correctamente."""
         client = self._client_for(self.supervisor_user)
         url = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -85,9 +85,9 @@ class TestImagenesFormulario:
         ).count() == 1
 
     # ---------------------------------------------------------------
-    # CP1b — Subir varias imágenes (HAPPY PATH)
+    #  CP07 Subir varias imágenes (HAPPY PATH)
     # ---------------------------------------------------------------
-    def test_CP1b_subir_varias_imagenes(self):
+    def test_subir_varias_imagenes(self):
         """El sistema permite subir varias imágenes en un solo request."""
         client = self._client_for(self.supervisor_user)
         url = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -107,9 +107,9 @@ class TestImagenesFormulario:
         ).count() == 2
 
     # ---------------------------------------------------------------
-    # CP2 — Formato inválido (FLUJO ALTERNATIVO)
+    #  Formato inválido (FLUJO ALTERNATIVO)
     # ---------------------------------------------------------------
-    def test_CP2_formato_invalido(self):
+    def test_formato_invalido(self):
         """El sistema rechaza archivos con formato no permitido."""
         client = self._client_for(self.supervisor_user)
         url = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -122,9 +122,9 @@ class TestImagenesFormulario:
         assert "Formato no permitido" in str(response.data["detail"])
 
     # ---------------------------------------------------------------
-    # CP3 — Imagen muy pesada (FLUJO ALTERNATIVO)
+    # CP07 — Imagen muy pesada (FLUJO ALTERNATIVO)
     # ---------------------------------------------------------------
-    def test_CP3_imagen_muy_pesada(self):
+    def test_imagen_muy_pesada(self):
         """El sistema rechaza imágenes que exceden el tamaño permitido (5MB)."""
         client = self._client_for(self.supervisor_user)
         url = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -143,9 +143,9 @@ class TestImagenesFormulario:
         assert "excede el tamaño" in str(response.data["detail"])
 
     # ---------------------------------------------------------------
-    # CP4 — Eliminar imagen (HAPPY PATH)
+    # CP07 — Eliminar imagen (HAPPY PATH)
     # ---------------------------------------------------------------
-    def test_CP4_eliminar_imagen(self):
+    def test_CP07_eliminar_imagen(self):
         """El sistema permite eliminar una imagen asociada a una instancia."""
         client = self._client_for(self.supervisor_user)
         url_upload = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -166,9 +166,9 @@ class TestImagenesFormulario:
         ).count() == 0
 
     # ---------------------------------------------------------------
-    # CP5 — No autenticado (FLUJO ALTERNATIVO)
+    # CP07 — No autenticado (FLUJO ALTERNATIVO)
     # ---------------------------------------------------------------
-    def test_CP5_no_autenticado_rechazado(self):
+    def test_no_autenticado_rechazado(self):
         """El sistema rechaza la subida si el usuario no está autenticado."""
         client = APIClient()
         url = f"/formats/submissions/{self.instancia_supervisor.pk}/images/"
@@ -180,9 +180,9 @@ class TestImagenesFormulario:
         assert response.status_code == 401
 
     # ---------------------------------------------------------------
-    # CP6 — Rol incorrecto (FLUJO ALTERNATIVO)
+    #   Rol incorrecto (FLUJO ALTERNATIVO)
     # ---------------------------------------------------------------
-    def test_CP6_rol_incorrecto_rechazado(self):
+    def test_rol_incorrecto_rechazado(self):
         """Un usuario SOCIOS autenticado no puede gestionar imágenes (403)."""
         client = self._client_for(self.socio_user)
         url = f"/formats/submissions/{self.instancia_socio.pk}/images/"
