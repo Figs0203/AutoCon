@@ -13,16 +13,17 @@ pytestmark = pytest.mark.django_db
 @pytest.mark.django_db
 class TestNombreFormulario:
     """
-    HU — Editar nombre de formulario (nombre_personalizado).
+    Test relacionados con los casos de prueba 
+    CP07 para la HU-04 - Anexar imágenes a los formularios
+    CP09 CP17 CP19 para la HU-14 - Guardar automáticamente progreso del formulario
+    CP22 para la HU-07 - Renombrar formulario
 
-    Backend real:
-    - Crear instancia:  POST /formats/submit/  (puede incluir nombre_personalizado)
-    - Editar instancia: PUT  /formats/submissions/<pk>/  (puede incluir nombre_personalizado)
+
+    Como opera en el backend de autocon.server:
+    - Crear instancia:  POST /formats/submit/  
+    - Editar instancia: PUT  /formats/submissions/<pk>/  
     - Historial/listado: GET /formats/submissions/  (retorna "titulo" = nombre_personalizado o nombre del formato)
 
-    Nota:
-    - La validación de nombre_personalizado está implementada en POST /formats/submit/.
-    - Si más adelante deseas exigir la validación también en PUT, el test CP-20 sirve como evidencia.
     """
 
     def setup_method(self):
