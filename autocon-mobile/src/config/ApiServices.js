@@ -2,6 +2,7 @@
 // Prioriza variable de entorno local para evitar subir IPs privadas al repositorio.
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 const AUTH_USER_KEY = 'auth_user';
@@ -17,10 +18,18 @@ const getApiUrl = () => {
         return `http://${ip}:8000`;
     }
 
-    return 'http://10.165.122.171:8000';
+    // Fallbacks cuando no hay hostUri (web/builds/CI). En WEB normalmente es localhost.
+    if (Platform.OS === 'android') {
+        // Android Emulator -> host machine
+        return 'http://10.0.2.2:8000';
+    }
+    return 'http://127.0.0.1:8000';
 };
 
 export const API_URL = getApiUrl();
+if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    console.log('[AutoCon] API_URL =', API_URL);
+}
 
 const ENDPOINTS = {
     FORMATS: '/formats/',
