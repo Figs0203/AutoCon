@@ -13,6 +13,15 @@ from .serializers import (
     ImagenFormularioSerializer,
 )
 
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.http import HttpResponse
+from io import BytesIO
+from django.shortcuts import get_object_or_404
+from reportlab.lib import colors
+import base64
+from reportlab.lib.utils import ImageReader
+
 
 def _is_present(value):
     if value is None:
@@ -238,9 +247,52 @@ def user_submissions(request):
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def detalle_instancia(request, pk):
-    """Obtiene una instancia existente o la actualiza (datos y estado), o la elimina."""
+    """Obtiene una instancia existente o la actualiza (datos y estado), o la elimina.
+    
+    GET: 
+        - SUPERVISOR: Ve sus propios formularios
+        - SOCIOS: Ve todos los formularios completados (modo readonly)
+    PUT/DELETE:
+        - SUPERVISOR: Solo sus propios formularios
+        - SOCIOS: No permitido
+    """
     profile = getattr(request.user, "profile", None)
-    if not profile or profile.role != UserProfile.SUPERVISOR_TECNICO:
+    if not profile:
+        return Response(
+            {"detail": "Perfil de usuario no encontrado"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Para GET: ambos roles pueden acceder (supervisores a sus propios, socios a todos)
+    if request.method == "GET":
+        try:
+            if profile.role == UserProfile.SUPERVISOR_TECNICO:
+                # Supervisores solo ven sus propias instancias
+                instancia = FormularioInstancia.objects.get(pk=pk, usuario=request.user)
+            elif profile.role == UserProfile.SOCIOS:
+                # Socios ven todas las instancias
+                instancia = FormularioInstancia.objects.get(pk=pk)
+            else:
+                return Response(
+                    {"detail": "Rol no reconocido"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        except FormularioInstancia.DoesNotExist:
+            return Response(
+                {"error": "Instancia no encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = FormularioInstanciaSerializer(instancia)
+        data = serializer.data
+        data["imagenes"] = ImagenFormularioSerializer(
+            instancia.imagenes.all(), many=True, context={"request": request}
+        ).data
+        data["nombre_personalizado"] = instancia.nombre_personalizado
+        return Response(data)
+
+    # Para PUT y DELETE: solo supervisores pueden modificar sus propios formularios
+    if profile.role != UserProfile.SUPERVISOR_TECNICO:
         return Response(
             {"detail": "Solo los supervisores pueden modificar formatos"},
             status=status.HTTP_403_FORBIDDEN,
@@ -254,22 +306,10 @@ def detalle_instancia(request, pk):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    if request.method == "GET":
-        serializer = FormularioInstanciaSerializer(instancia)
-        data = serializer.data
-        data["imagenes"] = ImagenFormularioSerializer(
-            instancia.imagenes.all(), many=True, context={"request": request}
-        ).data
-
-        data["nombre_personalizado"] = instancia.nombre_personalizado
-
-        return Response(data)
-
-    elif request.method == "PUT":
+    if request.method == "PUT":
         # Extraemos los campos permitidos para actualizar
         datos = request.data.get("datos", instancia.datos)
         estado = request.data.get("estado", instancia.estado)
-
         nombre_personalizado = request.data.get("nombre_personalizado")
 
         if estado == FormularioInstancia.ENVIADO:
@@ -420,3 +460,195 @@ def eliminar_imagen(request, instancia_pk, imagen_pk):
 
     imagen.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["GET"])
+def descargar_formulario(request, pk):
+    instancia = get_object_or_404(FormularioInstancia, pk=pk)
+    formato = instancia.formato
+    schema = formato.schema
+    datos = instancia.datos
+    
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    y = height - 50 
+
+    # --- ENCABEZADO TÉCNICO ---
+    p.setFillColor(colors.HexColor("#292929"))
+    p.rect(50, y - 10, width - 100, 40, fill=1, stroke=0)
+    p.setFillColor(colors.white)
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(60, y + 5, f"CONTROL DE CALIDAD: {formato.nombre}")
+    
+    y -= 30
+    p.setFillColor(colors.black)
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(50, y, f"OBRA: {datos.get('obra', 'N/A')}")
+    p.drawString(300, y, f"FECHA: {datos.get('fecha_vaciado', 'N/A')}")
+    y -= 15
+    p.setFont("Helvetica", 9)
+    p.drawString(50, y, f"ID: {pk} | Estado: {instancia.estado.upper()}")
+    p.drawString(300, y, f"Ubicación: {datos.get('ubicacion', 'N/A')}")
+    y -= 10
+    p.line(50, y, width - 50, y)
+    y -= 25
+
+    # --- CUERPO DEL FORMULARIO ---
+    for seccion in schema.get('secciones', []):
+        if y < 120:
+            p.showPage()
+            y = height - 50
+
+        # Título de Sección
+        p.setFillColor(colors.HexColor("#ecf0f1"))
+        p.rect(50, y - 15, width - 100, 18, fill=1, stroke=1)
+        p.setFillColor(colors.black)
+        p.setFont("Helvetica-Bold", 11)
+        p.drawString(55, y - 11, seccion.get('titulo', '').upper())
+        
+        # --- LÓGICA DE ENCABEZADOS DE COLUMNA ---
+        # Verificamos si algún campo de esta sección tiene el formato de revisiones
+        es_seccion_inspeccion = any(
+            isinstance(datos.get(c.get('id')), dict) and 'revisiones' in datos.get(c.get('id'), {}) 
+            for c in seccion.get('campos', [])
+        )
+
+        if es_seccion_inspeccion:
+            p.setFont("Helvetica-Bold", 8)
+            p.drawString(310, y - 11, "1.ª REVISIÓN")
+            p.drawString(370, y - 11, "2.ª REVISIÓN")
+            p.drawString(435, y - 11, "OBSERVACIONES")
+        else:
+            # Para secciones de información general, podrías poner un encabezado simple o nada
+            p.setFont("Helvetica-Bold", 8)
+            p.drawString(320, y - 11, "VALOR / DETALLE")
+
+        y -= 35
+
+        for campo in seccion.get('campos', []):
+            if y < 60:
+                p.showPage()
+                y = height - 50
+
+            label = campo.get('label', '')
+            campo_id = campo.get('id')
+            # Importante: usar .get(campo_id) sin el {} por defecto para que la validación sea limpia
+            valor = datos.get(campo_id)
+
+            p.setFont("Helvetica", 10)
+            p.drawString(60, y, label[:50] + (label[50:] and '..'))
+
+            # Si el dato es de tipo inspección (diccionario con revisiones)
+            if isinstance(valor, dict) and 'revisiones' in valor:
+                revs = valor.get('revisiones', [False, False])
+                obs = valor.get('observacion', '')
+                
+                p.drawString(335, y, "[✓]" if revs[0] else "[X]")   
+                p.drawString(385, y, "[✓]" if revs[1] else "[X]")
+                
+                p.setFont("Helvetica-Oblique", 8)
+                p.drawString(435, y, (obs[:30] if obs else "---"))
+            
+            else:
+                # Información General
+                p.setFont("Helvetica-Bold", 10)
+                p.drawString(320, y, str(valor) if valor else "---")
+
+            # Línea divisoria
+            p.setStrokeColor(colors.lightgrey)
+            p.setLineWidth(0.5)
+            p.line(60, y - 5, width - 60, y - 5)
+            p.setStrokeColor(colors.black)
+            p.setLineWidth(1)
+            y -= 20
+
+    # --- FIRMAS ---
+    firmas = datos.get("__firmas", {})
+
+    firma_constructor = get_image_from_base64(firmas.get("constructor")) if firmas.get("constructor") else None
+    firma_supervisor = get_image_from_base64(firmas.get("supervisor")) if firmas.get("supervisor") else None
+
+    # Título
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(50, y - 60, "FIRMAS / RESPONSABLES")
+
+    # --- CONSTRUCTOR ---
+    p.line(60, y - 145, 220, y - 145)
+
+    if firma_constructor:
+        p.drawImage(
+            firma_constructor,
+            60,
+            y - 140,
+            width=160,
+            height=60,
+            mask='auto'
+        )
+
+    p.setFont("Helvetica", 8)
+    p.drawString(60, y - 155, "CONSTRUCTOR")
+
+    # --- SUPERVISOR ---
+    p.line(320, y - 145, 480, y - 145)
+
+    if firma_supervisor:
+        p.drawImage(
+            firma_supervisor,
+            320,
+            y - 140,
+            width=160,
+            height=60,
+            mask='auto'
+        )
+
+    p.drawString(320, y - 155, "SUPERVISOR / INTERVENTOR")
+    
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Reporte_{pk}.pdf"'
+    return response
+
+#Funcion auxiliar para decodificar base64
+def get_image_from_base64(b64_string):
+    try:
+        header, encoded = b64_string.split(",", 1)
+        image_bytes = base64.b64decode(encoded)
+        return ImageReader(BytesIO(image_bytes))
+    except:
+        return None
+
+# ── Socios ───────────────────────────────────────────────────────
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def socio_formularios(request):
+    """Retorna todos los formularios (ENVIADOS y BORRADORES) para que los Socios puedan revisarlos."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SOCIOS:
+        return Response(
+            {"detail": "Solo los Socios pueden acceder a esta información"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Obtener todos los formularios (tanto ENVIADO como BORRADOR)
+    formularios = (
+        FormularioInstancia.objects.all()
+        .select_related("formato", "usuario")
+        .order_by("-fecha")
+    )
+
+    data = [
+        {
+            "id": inst.id,
+            "nombre_personalizado": inst.nombre_personalizado or inst.formato.nombre,
+            "codigo": inst.formato.codigo,
+            "supervisor": inst.usuario.email,
+            "fecha": inst.fecha.isoformat(),
+            "estado": inst.estado,
+        }
+        for inst in formularios
+    ]
+    return Response(data)

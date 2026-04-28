@@ -8,6 +8,7 @@ urlpatterns = [
     path("formats/submit/", views.guardar_formulario),
     path("formats/dashboard/", views.dashboard_stats),
     path("formats/recent/", views.recent_submissions),
+    path("formats/socio-formularios/", views.socio_formularios),
     path("formats/submissions/", views.user_submissions),
     path("formats/submissions/<int:pk>/", views.detalle_instancia),
     # Imágenes
@@ -19,4 +20,5 @@ urlpatterns = [
         "formats/submissions/<int:instancia_pk>/images/<int:imagen_pk>/",
         views.eliminar_imagen,
     ),
+    path("formats/download/<int:pk>/", views.descargar_formulario),
 ]

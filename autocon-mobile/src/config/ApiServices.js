@@ -42,6 +42,7 @@ const ENDPOINTS = {
     LOGOUT: '/users/logout/',
     ME: '/users/me/',
     SOCIOS_DASHBOARD: '/users/socios/dashboard/',
+    SOCIO_FORMULARIOS: '/formats/socio-formularios/',
 };
 
 
@@ -96,6 +97,12 @@ export const httpServiceAuthPost = (endpoint, body) => httpService(endpoint, 'PO
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
 
 // Guardar nueva instancia
+/**
+ * @param {number|string} formatoId
+ * @param {any} datos
+ * @param {string} estado
+ * @param {string | null | undefined} nombrePersonalizado
+ */
 export const submitForm = (formatoId, datos, estado = "BORRADOR", nombrePersonalizado = null) => {
     const request = {
         formato: Number(formatoId),
@@ -112,6 +119,12 @@ export const getSubmissionDetail = (instanciaId) => {
 };
 
 // Actualizar un submission existente
+/**
+ * @param {number|string} instanciaId
+ * @param {any} datos
+ * @param {string} estado
+ * @param {string | null | undefined} nombrePersonalizado
+ */
 export const updateSubmission = (instanciaId, datos, estado, nombrePersonalizado = null) => {
     const request = {
         estado: estado,
@@ -164,6 +177,7 @@ export const deleteAttachedImage = (instanciaId, imagenId) => {
 
 export const getDashboardStats = () => httpServiceAuthGet(ENDPOINTS.DASHBOARD);
 export const getRecentSubmissions = () => httpServiceAuthGet(ENDPOINTS.RECENT);
+export const getSocioFormularios = () => httpServiceAuthGet(ENDPOINTS.SOCIO_FORMULARIOS);
 export const getSubmissions = () => httpServiceAuthGet(ENDPOINTS.SUBMISSIONS);
 
 export const register = async (email, password, role) => {

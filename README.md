@@ -19,7 +19,7 @@ P2/
 - npm o yarn
 - Git
 
-### 1. Clonar el Repositorio
+### 1. Clonar el Repositorio en local
 
 ```bash
 git clone https://github.com/tu-usuario/autocon.git

@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../../src/styles/global";
@@ -19,6 +19,7 @@ export default function DetalleFormato() {
   const [formato, setFormato] = useState<Formato | null>(null);
   const [respuestas, setRespuestas] = useState<Respuestas>({});
   const [estado, setEstado] = useState<string>("BORRADOR");
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
   const [enviandoBorrador, setEnviandoBorrador] = useState(false);
   const [enviandoCompletado, setEnviandoCompletado] = useState(false);
@@ -36,60 +37,71 @@ export default function DetalleFormato() {
   const localDraftKey = `draft_${type}_${id}`;
 
   // ─── Cargar Base (Plantilla o Instancia + Draft Local) ─────────────────────
-  useEffect(() => {
-    const cargarDatos = async () => {
-      setCargando(true);
-      try {
-        const user = await getCurrentUser();
-        if (type === "template" && user?.role === "SOCIOS") {
-          Alert.alert("Acceso restringido", "Los socios no pueden diligenciar formatos.");
-          router.replace("/");
-          return;
-        }
-
-        let baseRespuestas = {};
-        let currentEstado = "BORRADOR";
-        
-        if (type === "instance") {
-          const instanciaObj = await getSubmissionDetail(id);
-          baseRespuestas = instanciaObj.datos || {};
-          currentEstado = instanciaObj.estado;
-          setNombrePersonalizado(instanciaObj.nombre_personalizado || "");
-          setEstado(currentEstado);
-          setServerImages(instanciaObj.imagenes || []);
-          
-          const formatoIdObj = typeof instanciaObj.formato === 'object' ? instanciaObj.formato.id : instanciaObj.formato;
-          const res = await fetch(`${API_URL}/formats/${formatoIdObj}/`);
-          setFormato(await res.json());
-        } else {
-          const res = await fetch(`${API_URL}/formats/${id}/`);
-          const formatoData = await res.json();
-          setFormato(formatoData);
-          setEstado("BORRADOR");
-          
-          setNombrePersonalizado(formatoData.nombre || "");
-        }
-
-        // Si el cuestionario no está finalizado, revisar si hay un borrador local más reciente
-        if (currentEstado !== "ENVIADO") {
-          const localDraft = await AsyncStorage.getItem(localDraftKey);
-          if (localDraft) {
-            baseRespuestas = JSON.parse(localDraft);
+  useFocusEffect(
+    useCallback(() => {
+      const cargarDatos = async () => {
+        setCargando(true);
+        try {
+          const user = await getCurrentUser();
+          if (!user || !user.role) {
+            router.replace("/login");
+            return;
           }
+
+          setUserRole(user.role);
+          if (type === "template" && user.role !== "SUPERVISOR_TECNICO") {
+            Alert.alert("Acceso restringido", "Solo el supervisor técnico puede crear formularios.");
+            router.replace("/");
+            return;
+          }
+
+          let baseRespuestas = {};
+          let currentEstado = "BORRADOR";
+
+          setServerImages([]);
+          setPendingImages([]);
+
+          if (type === "instance") {
+            const instanciaObj = await getSubmissionDetail(id);
+            baseRespuestas = instanciaObj.datos || {};
+            currentEstado = instanciaObj.estado;
+            setNombrePersonalizado(instanciaObj.nombre_personalizado || "");
+            setEstado(currentEstado);
+            setServerImages(instanciaObj.imagenes || []);
+            
+            const formatoIdObj = typeof instanciaObj.formato === 'object' ? instanciaObj.formato.id : instanciaObj.formato;
+            const res = await fetch(`${API_URL}/formats/${formatoIdObj}/`);
+            setFormato(await res.json());
+          } else {
+            const res = await fetch(`${API_URL}/formats/${id}/`);
+            const formatoData = await res.json();
+            setFormato(formatoData);
+            setEstado("BORRADOR");
+            
+            setNombrePersonalizado(formatoData.nombre || "");
+          }
+
+          // Si el cuestionario no está finalizado, revisar si hay un borrador local más reciente
+          if (currentEstado !== "ENVIADO") {
+            const localDraft = await AsyncStorage.getItem(localDraftKey);
+            if (localDraft) {
+              baseRespuestas = JSON.parse(localDraft);
+            }
+          }
+          
+          setRespuestas(baseRespuestas);
+        } catch (error: any) {
+          console.error("Error al cargar datos:", error);
+          Alert.alert("Error", "No se pudieron cargar los datos del formulario.");
+        } finally {
+          setCargando(false);
+          // Permitir que el auto-save empiece a registrar cambios después de cargar
+          setTimeout(() => { isInitialLoad.current = false; }, 500); 
         }
-        
-        setRespuestas(baseRespuestas);
-      } catch (error: any) {
-        console.error("Error al cargar datos:", error);
-        Alert.alert("Error", "No se pudieron cargar los datos del formulario.");
-      } finally {
-        setCargando(false);
-        // Permitir que el auto-save empiece a registrar cambios después de cargar
-        setTimeout(() => { isInitialLoad.current = false; }, 500); 
-      }
-    };
-    if (id) cargarDatos();
-  }, [id, type]);
+      };
+      if (id) cargarDatos();
+    }, [id, type, router])
+  );
 
   // ─── Autoguardado Local (Invisible) ────────────────────────────────────────
   useEffect(() => {
@@ -104,7 +116,7 @@ export default function DetalleFormato() {
     }, 1000); // Guarda 1 segundo después de dejar de escribir
 
     return () => clearTimeout(autoSave);
-  }, [respuestas, estado]);
+  }, [respuestas, estado, localDraftKey]);
 
   // ─── Helpers de actualización de campos ────────────────────────────────────
   const actualizarCampo = useCallback((campoId: string, valor: any) => {
@@ -331,6 +343,10 @@ export default function DetalleFormato() {
   // ─── Guardar en la Base de Datos Oficial ──────────────────────────────────
   const handleGuardar = async (nuevoEstado: "BORRADOR" | "ENVIADO") => {
     if (!id) return;
+    if (userRole !== "SUPERVISOR_TECNICO") {
+      Alert.alert("Acceso restringido", "Solo el supervisor técnico puede guardar formularios.");
+      return;
+    }
 
     setSubmitError("");
 
@@ -425,8 +441,13 @@ export default function DetalleFormato() {
     );
   }
 
+  const readonly = userRole !== "SUPERVISOR_TECNICO";
 
-  const readonly = estado === "ENVIADO";
+  const headerStatus = () => {
+    if (type !== "instance") return "Nuevo Registro";
+    if (userRole !== "SUPERVISOR_TECNICO") return `Visualización (${estado})`;
+    return `Editando (${estado})`;
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -435,7 +456,7 @@ export default function DetalleFormato() {
         alignItems: 'center', 
         paddingHorizontal: 16, 
         paddingTop: 16,
-        paddingBottom: 8,
+        paddingBottom: 12,
       }}>
         
         {isEditingName ? (
@@ -485,7 +506,7 @@ export default function DetalleFormato() {
       </View>
 
       <Text style={[styles.textoGris, { paddingHorizontal: 16, marginBottom: 16 }]}>
-        {formato.codigo} - {type === "instance" ? `Editando (${estado})` : "Nuevo Registro"}
+        {formato.codigo} - {headerStatus()}
       </Text>
 
       <View style={{ marginBottom: 40 }} pointerEvents={readonly ? "none" : "auto"}>
