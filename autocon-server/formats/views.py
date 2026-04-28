@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -230,6 +231,19 @@ def user_submissions(request):
         .select_related("formato")
         .order_by("-fecha")
     )
+
+    # Filtros de búsqueda (se añaden para pasar tests)
+    q = (request.query_params.get("q") or "").strip()
+    if q:
+        envios = envios.filter(
+            Q(nombre_personalizado__icontains=q)
+            | Q(formato__nombre__icontains=q)
+            | Q(formato__codigo__icontains=q)
+        )
+
+    estado = (request.query_params.get("estado") or "").strip()
+    if estado:
+        envios = envios.filter(estado=estado)
 
     data = [
         {

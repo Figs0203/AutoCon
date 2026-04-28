@@ -2,6 +2,7 @@ import time
 
 import pytest
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from users.models import UserProfile
@@ -28,8 +29,8 @@ class TestBusquedaFiltros:
         UserProfile.objects.create(user=self.user, role=UserProfile.SUPERVISOR_TECNICO)
 
         self.client = APIClient()
-        # Forzamos autenticación para evitar falsos negativos por configuración de auth.
-        self.client.force_authenticate(user=self.user)
+        token, _ = Token.objects.get_or_create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
 
         self.formato = FormatoTecnico.objects.create(
             nombre="Formato Base",
