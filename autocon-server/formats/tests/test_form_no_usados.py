@@ -95,7 +95,6 @@ class TestEliminarFormulariosNoUsados:
     # ----------------------S-----------------------------------------
     def test_eliminar_formulario_usuario_no_autorizado(self):
         """
-        Flujo alternativo:
         El sistema debe impedir la eliminación de formularios cuando el usuario
         no tiene permisos suficientes.
 

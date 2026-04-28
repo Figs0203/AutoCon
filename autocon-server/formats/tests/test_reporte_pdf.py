@@ -134,9 +134,6 @@ class TestReportePDF:
         """
         Criterio de aceptación:
         El sistema permite generar PDF solo de formularios finalizados (ENVIADO).
-
-        Si hoy el backend permite descargar PDFs en BORRADOR, este test fallará
-        y deja evidencia de la brecha.
         """
         # ARRANGE
         instancia = FormularioInstancia.objects.create(
@@ -159,9 +156,6 @@ class TestReportePDF:
         """
         Criterio de aceptación:
         El PDF incluye el nombre/email del usuario que realizó la inspección.
-
-        Validación simple: el contenido PDF contiene el email como texto.
-        Si el backend aún no lo imprime, este test fallará.
         """
         # ARRANGE
         instancia = FormularioInstancia.objects.create(

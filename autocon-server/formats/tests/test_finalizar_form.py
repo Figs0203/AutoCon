@@ -14,11 +14,6 @@ pytestmark = pytest.mark.django_db
 class TestFinalizarFormulario:
     """
     HU-16 — Finalizar formulario diligenciado.
-
-    Backend real:
-    - Crear: POST /formats/submit/
-    - Finalizar: PUT /formats/submissions/<pk>/ con estado="ENVIADO"
-    - Validación obligatorios: al poner estado ENVIADO, valida schema + firmas.
     """
 
     def setup_method(self):
@@ -106,7 +101,7 @@ class TestFinalizarFormulario:
         assert len(response.data["errors"]) >= 1
 
     # ---------------------------------------------------------------
-    # Criterio — No editable tras completar (puede evidenciar gap)
+    #  No editable tras completar 
     # ---------------------------------------------------------------
     def test_formulario_enviado_no_debe_permitir_edicion(self):
         """
@@ -138,5 +133,4 @@ class TestFinalizarFormulario:
             format="json",
         )
 
-        # Esperado (criterio): no permitir edición.
         assert response.status_code in (400, 403)

@@ -16,12 +16,6 @@ pytestmark = pytest.mark.django_db
 class TestBusquedaFiltros:
     """
     HU-09 — Buscar formularios mediante filtros.
-
-    Nota importante:
-    En el backend actual, el listado es GET /formats/submissions/ y retorna todos los
-    envíos del usuario. Estos tests asumen filtrado por query params (q/estado), que
-    es lo que pide la HU. Si el backend aún no implementa esos filtros, estos tests
-    fallarán y servirán como evidencia del gap.
     """
 
     def setup_method(self):
@@ -63,8 +57,6 @@ class TestBusquedaFiltros:
     def test_CP12_filtro_por_nombre(self):
         """
         El usuario puede buscar formularios por nombre (texto libre).
-
-        Suposición de API para la HU: /formats/submissions/?q=<texto>
         """
         response = self.client.get(self.list_url, {"q": "Norte"})
 
@@ -79,8 +71,6 @@ class TestBusquedaFiltros:
     def test_CP13_filtro_por_estado(self):
         """
         El sistema permite aplicar filtros por estado del formulario.
-
-        Suposición de API para la HU: /formats/submissions/?estado=BORRADOR|ENVIADO
         """
         response = self.client.get(self.list_url, {"estado": FormularioInstancia.ENVIADO})
 
@@ -96,7 +86,6 @@ class TestBusquedaFiltros:
         La búsqueda debe responder en menos de 3 segundos y retornar un listado
         organizado (estructura y orden por fecha descendente).
 
-        Nota: si el backend aún no implementa filtros, este test NO exige lista vacía.
         """
         start = time.monotonic()
         response = self.client.get(self.list_url, {"q": "NO_EXISTE_12345"})

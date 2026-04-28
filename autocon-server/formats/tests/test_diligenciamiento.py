@@ -14,11 +14,6 @@ pytestmark = pytest.mark.django_db
 class TestDiligenciamientoFormularios:
     """
     HU-13 — Diligenciar formularios de inspección (backend).
-
-    Nota: El backend expone la lógica principal:
-    - Seleccionar formato técnico: GET /formats/ y GET /formats/<id>/
-    - Crear/guardar instancia: POST /formats/submit/ (requiere SUPERVISOR_TECNICO)
-    - Validación de obligatorios al enviar: estado=ENVIADO
     """
 
     def setup_method(self):

@@ -14,10 +14,6 @@ pytestmark = pytest.mark.django_db
 class TestVisualizacionFormatosTecnicos:
     """
     HU-06 — Visualización de formatos técnicos.
-
-    Backend real:
-    - Listar plantillas: GET /formats/ (solo activo=True)
-    - Ver detalle: GET /formats/<pk>/ (si activo=True)
     """
 
     def setup_method(self):
