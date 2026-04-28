@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Tabs } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Tabs, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../src/styles/colors";
 import { getCachedUser, getCurrentUser } from "../src/config/ApiServices";
@@ -11,23 +11,25 @@ import { getCachedUser, getCurrentUser } from "../src/config/ApiServices";
 export default function RootLayout() {
   const [role, setRole] = useState<string | null>(null);
 
-  useEffect(() => {
-    const resolveRole = async () => {
-      try {
-        const cachedUser = await getCachedUser();
-        if (cachedUser?.role) {
-          setRole(cachedUser.role);
+  useFocusEffect(
+    useCallback(() => {
+      const resolveRole = async () => {
+        try {
+          const cachedUser = await getCachedUser();
+          if (cachedUser?.role) {
+            setRole(cachedUser.role);
+          }
+
+          const user = await getCurrentUser();
+          setRole(user?.role ?? null);
+        } catch (_error) {
+          setRole(null);
         }
+      };
 
-        const user = await getCurrentUser();
-        setRole(user?.role ?? null);
-      } catch (_error) {
-        setRole(null);
-      }
-    };
-
-    resolveRole();
-  }, []);
+      resolveRole();
+    }, [])
+  );
 
   return (
     <Tabs
@@ -73,7 +75,6 @@ export default function RootLayout() {
       <Tabs.Screen
         name="forms"
         options={{
-          href: role === "SOCIOS" ? null : undefined,
           title: "Nuevo",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
