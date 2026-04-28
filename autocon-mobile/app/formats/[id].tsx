@@ -34,12 +34,7 @@ export default function DetalleFormato() {
   const [isEditingName, setIsEditingName] = useState(false);
 
   const isInitialLoad = useRef(true);
-  const [localDraftKey, setLocalDraftKey] = useState(`draft_${type}_${id}`);
-
-  // Actualizar la clave del borrador local cuando cambie id o type
-  useEffect(() => {
-    setLocalDraftKey(`draft_${type}_${id}`);
-  }, [id, type]);
+  const localDraftKey = `draft_${type}_${id}`;
 
   // ─── Cargar Base (Plantilla o Instancia + Draft Local) ─────────────────────
   useFocusEffect(
@@ -62,7 +57,10 @@ export default function DetalleFormato() {
 
           let baseRespuestas = {};
           let currentEstado = "BORRADOR";
-          
+
+          setServerImages([]);
+          setPendingImages([]);
+
           if (type === "instance") {
             const instanciaObj = await getSubmissionDetail(id);
             baseRespuestas = instanciaObj.datos || {};
@@ -118,7 +116,7 @@ export default function DetalleFormato() {
     }, 1000); // Guarda 1 segundo después de dejar de escribir
 
     return () => clearTimeout(autoSave);
-  }, [respuestas, estado]);
+  }, [respuestas, estado, localDraftKey]);
 
   // ─── Helpers de actualización de campos ────────────────────────────────────
   const actualizarCampo = useCallback((campoId: string, valor: any) => {
