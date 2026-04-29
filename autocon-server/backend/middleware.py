@@ -34,7 +34,7 @@ class DebugFullRequestMiddleware:
                 print(f"  - Campo: {name}, Nombre: {file.name}, Tamaño: {file.size} bytes")
 
         # 5. Cuerpo (Body)
-        if request.body and request.content_type == 'application/json':
+        if request.content_type == 'application/json' and request.body:
             try:
                 print(f"\n[BODY JSON] request.body:")
                 print(json.dumps(json.loads(request.body), indent=2))

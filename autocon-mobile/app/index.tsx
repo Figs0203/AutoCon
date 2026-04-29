@@ -18,10 +18,19 @@ import {
   getDashboardStats,
   getRecentSubmissions,
   getCurrentUser,
-  getSociosDashboard,
+  getSocioFormularios,
   logout,
 } from "../src/config/ApiServices";
 import { useFocusEffect } from "expo-router";
+
+interface SocioFormulario {
+  id: number;
+  nombre_personalizado: string;
+  codigo: string;
+  supervisor: string;
+  fecha: string;
+  estado: string;
+}
 
 /** Interfaz de respuesta del backend /formats/dashboard/ */
 interface DashboardStats {
@@ -71,7 +80,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [role, setRole] = useState<string | null>(null);
-  const [sociosData, setSociosData] = useState<SociosDashboardResponse | null>(null);
+  const [sociosFormularios, setSociosFormularios] = useState<SocioFormulario[]>([]);
   const handleLogout = useCallback(async () => {
     try {
       await logout();
@@ -104,8 +113,8 @@ export default function HomeScreen() {
 
     try {
       if (role === "SOCIOS") {
-        const sociosDashboard = await getSociosDashboard();
-        setSociosData(sociosDashboard);
+        const forms = await getSocioFormularios();
+        setSociosFormularios(forms || []);
         setStats(null);
         setRecent([]);
       } else {
@@ -115,7 +124,6 @@ export default function HomeScreen() {
         ]);
         setStats(statsData);
         setRecent(recentData);
-        setSociosData(null);
       }
     } catch (error) {
       console.error("Error al cargar el dashboard:", error);
@@ -170,7 +178,7 @@ export default function HomeScreen() {
               <ActivityIndicator size="large" color={Colors.accent} />
             </View>
           ) : role === "SOCIOS" ? (
-            <SociosHomeView data={sociosData} />
+            <SociosHomeView forms={sociosFormularios} />
           ) : (
             <SupervisorHomeView stats={stats} recent={recent} />
           )}

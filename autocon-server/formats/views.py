@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -231,6 +232,19 @@ def user_submissions(request):
         .order_by("-fecha")
     )
 
+    # Filtros de búsqueda (se añaden para pasar tests)
+    q = (request.query_params.get("q") or "").strip()
+    if q:
+        envios = envios.filter(
+            Q(nombre_personalizado__icontains=q)
+            | Q(formato__nombre__icontains=q)
+            | Q(formato__codigo__icontains=q)
+        )
+
+    estado = (request.query_params.get("estado") or "").strip()
+    if estado:
+        envios = envios.filter(estado=estado)
+
     data = [
         {
             "id": inst.id,
@@ -247,9 +261,52 @@ def user_submissions(request):
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def detalle_instancia(request, pk):
-    """Obtiene una instancia existente o la actualiza (datos y estado), o la elimina."""
+    """Obtiene una instancia existente o la actualiza (datos y estado), o la elimina.
+    
+    GET: 
+        - SUPERVISOR: Ve sus propios formularios
+        - SOCIOS: Ve todos los formularios completados (modo readonly)
+    PUT/DELETE:
+        - SUPERVISOR: Solo sus propios formularios
+        - SOCIOS: No permitido
+    """
     profile = getattr(request.user, "profile", None)
-    if not profile or profile.role != UserProfile.SUPERVISOR_TECNICO:
+    if not profile:
+        return Response(
+            {"detail": "Perfil de usuario no encontrado"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Para GET: ambos roles pueden acceder (supervisores a sus propios, socios a todos)
+    if request.method == "GET":
+        try:
+            if profile.role == UserProfile.SUPERVISOR_TECNICO:
+                # Supervisores solo ven sus propias instancias
+                instancia = FormularioInstancia.objects.get(pk=pk, usuario=request.user)
+            elif profile.role == UserProfile.SOCIOS:
+                # Socios ven todas las instancias
+                instancia = FormularioInstancia.objects.get(pk=pk)
+            else:
+                return Response(
+                    {"detail": "Rol no reconocido"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        except FormularioInstancia.DoesNotExist:
+            return Response(
+                {"error": "Instancia no encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = FormularioInstanciaSerializer(instancia)
+        data = serializer.data
+        data["imagenes"] = ImagenFormularioSerializer(
+            instancia.imagenes.all(), many=True, context={"request": request}
+        ).data
+        data["nombre_personalizado"] = instancia.nombre_personalizado
+        return Response(data)
+
+    # Para PUT y DELETE: solo supervisores pueden modificar sus propios formularios
+    if profile.role != UserProfile.SUPERVISOR_TECNICO:
         return Response(
             {"detail": "Solo los supervisores pueden modificar formatos"},
             status=status.HTTP_403_FORBIDDEN,
@@ -263,22 +320,10 @@ def detalle_instancia(request, pk):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    if request.method == "GET":
-        serializer = FormularioInstanciaSerializer(instancia)
-        data = serializer.data
-        data["imagenes"] = ImagenFormularioSerializer(
-            instancia.imagenes.all(), many=True, context={"request": request}
-        ).data
-
-        data["nombre_personalizado"] = instancia.nombre_personalizado
-
-        return Response(data)
-
-    elif request.method == "PUT":
+    if request.method == "PUT":
         # Extraemos los campos permitidos para actualizar
         datos = request.data.get("datos", instancia.datos)
         estado = request.data.get("estado", instancia.estado)
-
         nombre_personalizado = request.data.get("nombre_personalizado")
 
         if estado == FormularioInstancia.ENVIADO:
@@ -588,3 +633,37 @@ def get_image_from_base64(b64_string):
         return ImageReader(BytesIO(image_bytes))
     except:
         return None
+
+# ── Socios ───────────────────────────────────────────────────────
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def socio_formularios(request):
+    """Retorna todos los formularios (ENVIADOS y BORRADORES) para que los Socios puedan revisarlos."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SOCIOS:
+        return Response(
+            {"detail": "Solo los Socios pueden acceder a esta información"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Obtener todos los formularios (tanto ENVIADO como BORRADOR)
+    formularios = (
+        FormularioInstancia.objects.all()
+        .select_related("formato", "usuario")
+        .order_by("-fecha")
+    )
+
+    data = [
+        {
+            "id": inst.id,
+            "nombre_personalizado": inst.nombre_personalizado or inst.formato.nombre,
+            "codigo": inst.formato.codigo,
+            "supervisor": inst.usuario.email,
+            "fecha": inst.fecha.isoformat(),
+            "estado": inst.estado,
+        }
+        for inst in formularios
+    ]
+    return Response(data)

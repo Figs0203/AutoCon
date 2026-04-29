@@ -2,6 +2,7 @@
 // Prioriza variable de entorno local para evitar subir IPs privadas al repositorio.
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 const AUTH_USER_KEY = 'auth_user';
@@ -17,10 +18,18 @@ const getApiUrl = () => {
         return `http://${ip}:8000`;
     }
 
-    return 'http://10.165.122.171:8000';
+    // Fallbacks cuando no hay hostUri (web/builds/CI). En WEB normalmente es localhost.
+    if (Platform.OS === 'android') {
+        // Android Emulator -> host machine
+        return 'http://10.0.2.2:8000';
+    }
+    return 'http://127.0.0.1:8000';
 };
 
 export const API_URL = getApiUrl();
+if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    console.log('[AutoCon] API_URL =', API_URL);
+}
 
 const ENDPOINTS = {
     FORMATS: '/formats/',
@@ -33,6 +42,7 @@ const ENDPOINTS = {
     LOGOUT: '/users/logout/',
     ME: '/users/me/',
     SOCIOS_DASHBOARD: '/users/socios/dashboard/',
+    SOCIO_FORMULARIOS: '/formats/socio-formularios/',
 };
 
 
@@ -87,6 +97,12 @@ export const httpServiceAuthPost = (endpoint, body) => httpService(endpoint, 'PO
 export const getFormats = () => httpServiceGet(ENDPOINTS.FORMATS);
 
 // Guardar nueva instancia
+/**
+ * @param {number|string} formatoId
+ * @param {any} datos
+ * @param {string} estado
+ * @param {string | null | undefined} nombrePersonalizado
+ */
 export const submitForm = (formatoId, datos, estado = "BORRADOR", nombrePersonalizado = null) => {
     const request = {
         formato: Number(formatoId),
@@ -103,6 +119,12 @@ export const getSubmissionDetail = (instanciaId) => {
 };
 
 // Actualizar un submission existente
+/**
+ * @param {number|string} instanciaId
+ * @param {any} datos
+ * @param {string} estado
+ * @param {string | null | undefined} nombrePersonalizado
+ */
 export const updateSubmission = (instanciaId, datos, estado, nombrePersonalizado = null) => {
     const request = {
         estado: estado,
@@ -155,6 +177,7 @@ export const deleteAttachedImage = (instanciaId, imagenId) => {
 
 export const getDashboardStats = () => httpServiceAuthGet(ENDPOINTS.DASHBOARD);
 export const getRecentSubmissions = () => httpServiceAuthGet(ENDPOINTS.RECENT);
+export const getSocioFormularios = () => httpServiceAuthGet(ENDPOINTS.SOCIO_FORMULARIOS);
 export const getSubmissions = () => httpServiceAuthGet(ENDPOINTS.SUBMISSIONS);
 
 export const register = async (email, password, role) => {
