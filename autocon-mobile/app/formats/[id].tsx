@@ -8,6 +8,8 @@ import SignatureField from "../../components/formats/SignatureField";
 import ImageAttachment from "../../components/formats/ImageAttachment";
 import { API_URL, submitForm, getSubmissionDetail, updateSubmission, deleteSubmission, getCurrentUser, uploadImages, deleteAttachedImage } from "../../src/config/ApiServices";
 import { Ionicons } from "@expo/vector-icons";
+import * as Sharing from 'expo-sharing';
+import { downloadSubmissionFile } from '../../src/config/ApiServices';
 
 type Respuestas = Record<string, any>;
 const SIGNATURES_KEY = "__firmas";
@@ -24,6 +26,7 @@ export default function DetalleFormato() {
   const [enviandoBorrador, setEnviandoBorrador] = useState(false);
   const [enviandoCompletado, setEnviandoCompletado] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [downloading, setDownloading] = useState(false);
   
   // ── Imágenes
   const [serverImages, setServerImages] = useState<ImageInfo[]>([]);
@@ -429,6 +432,24 @@ export default function DetalleFormato() {
     } finally {
       if (nuevoEstado === "BORRADOR") setEnviandoBorrador(false);
       else setEnviandoCompletado(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+
+      const uri = await downloadSubmissionFile(id);
+
+      Alert.alert("Descargado", "El PDF fue descargado correctamente");
+
+      await Sharing.shareAsync(uri);
+
+    } catch (error) {
+      const err = error as any;
+      Alert.alert("Error", err.message);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -847,6 +868,25 @@ export default function DetalleFormato() {
           </View>
         )}
       </View>
+      {/* ── Botón Descargar (solo lectura) ───────────────────── */}
+        {readonly && (
+          <View style={{ marginTop: 16 }}>
+            <TouchableOpacity
+              style={[
+                styles.botonEnviar,
+                { backgroundColor: "#3B82F6" }
+              ]}
+              onPress={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.botonTexto}>Descargar PDF</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
     </ScrollView>
   );
 }

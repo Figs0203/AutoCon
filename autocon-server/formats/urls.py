@@ -11,6 +11,7 @@ urlpatterns = [
     path("formats/socio-formularios/", views.socio_formularios),
     path("formats/submissions/", views.user_submissions),
     path("formats/submissions/<int:pk>/", views.detalle_instancia),
+    path("formats/submissions/<int:pk>/download/", views.descargar_formulario),
     # Imágenes
     path(
         "formats/submissions/<int:instancia_pk>/images/",
