@@ -187,3 +187,35 @@ export const getCachedUser = async () => {
     const raw = await AsyncStorage.getItem(AUTH_USER_KEY);
     return raw ? JSON.parse(raw) : null;
 };
+
+
+//PDF
+
+import * as FileSystem from 'expo-file-system/legacy';
+
+export const downloadSubmissionFile = async (instanciaId) => {
+    console.log("Downloading submission file for instance:", instanciaId);
+
+    const token = await AsyncStorage.getItem('auth_token');
+    console.log("Token:", token)
+
+    if (!token) {
+        throw new Error("No autenticado");
+    }
+
+    const fileUri = FileSystem.documentDirectory + `Reporte_${instanciaId}.pdf`;
+    console.log("Saving to", fileUri);
+
+    const result = await FileSystem.downloadAsync(
+        `${API_URL}/formats/submissions/${instanciaId}/download/`,
+        fileUri,
+        {
+            headers: {
+                Authorization: `Token ${token}`,
+            },
+        }
+    );
+
+    console.log("result:", result)
+    return result.uri;
+};

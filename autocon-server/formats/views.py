@@ -431,6 +431,7 @@ def eliminar_imagen(request, instancia_pk, imagen_pk):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(["GET"])
+#@permission_classes([IsAuthenticated])
 def descargar_formulario(request, pk):
     instancia = get_object_or_404(FormularioInstancia, pk=pk)
     formato = instancia.formato
