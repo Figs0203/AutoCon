@@ -13,6 +13,8 @@ interface Supervisor {
   id: number;
   nombre: string;
   email: string;
+  rol: string;
+  fecha_registro: string;
   formatos_diligenciados: number;
 }
 
@@ -113,9 +115,9 @@ export default function UsersScreen() {
             }
             renderItem={({ item }) => (
               <UserCard
-                nombre={item.nombre}
                 email={item.email}
-                formularios={item.formatos_diligenciados}
+                rol={item.rol}
+                fecha_registro={item.fecha_registro}
               />
             )}
             contentContainerStyle={{ paddingBottom: 16 }}

@@ -93,6 +93,8 @@ def socios_dashboard(request):
                 "id": supervisor.id,
                 "nombre": nombre,
                 "email": supervisor.email,
+                "rol": "SUPERVISOR_TECNICO",
+                "fecha_registro": supervisor.date_joined,
                 "formatos_diligenciados": counts_by_user.get(supervisor.id, 0),
             }
         )

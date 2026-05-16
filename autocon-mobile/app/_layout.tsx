@@ -1,8 +1,8 @@
-import React, { useCallback, useState } from "react";
 import { Tabs, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../src/styles/colors";
 import { getCachedUser, getCurrentUser } from "../src/config/ApiServices";
+import React, { useCallback, useState, useEffect } from "react";  // ← Añade useEffect
 
 /**
  * Layout raíz de la app: bottom tab bar con 4 pestañas.
@@ -11,25 +11,21 @@ import { getCachedUser, getCurrentUser } from "../src/config/ApiServices";
 export default function RootLayout() {
   const [role, setRole] = useState<string | null>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      const resolveRole = async () => {
-        try {
-          const cachedUser = await getCachedUser();
-          if (cachedUser?.role) {
-            setRole(cachedUser.role);
-          }
+  useEffect(() => {
+  const interval = setInterval(async () => {
+    try {
+      const user = await getCurrentUser();
+      console.log("🔍 VERIFICANDO ROL:", user?.role);
+      setRole(user?.role ?? null);
+    } catch (_error) {
+      console.log("❌ ERROR:", _error);
+      setRole(null);
+    }
+  }, 2000); // Verifica cada 2 segundos
 
-          const user = await getCurrentUser();
-          setRole(user?.role ?? null);
-        } catch (_error) {
-          setRole(null);
-        }
-      };
+  return () => clearInterval(interval);
+}, []);
 
-      resolveRole();
-    }, [])
-  );
 
   return (
     <Tabs
@@ -62,30 +58,28 @@ export default function RootLayout() {
 
       {/* ── Formatos ─────────────────────────────────────────── */}
       {/* ── Formatos (solo SUPERVISOR) ──────────────────────────── */}
-      {role === "SUPERVISOR_TECNICO" && (
-        <Tabs.Screen
-          name="formats"
-          options={{
-            title: "Formatos",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="reader-outline" size={size} color={color} />
-            ),
-          }}
-        />
-      )}
+      <Tabs.Screen
+        name="formats"
+        options={{
+          href: role !== "SUPERVISOR_TECNICO" ? null : "formats",
+          title: "Formatos",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="reader-outline" size={size} color={color} />
+          ),
+        }}
+      />
 
       {/* ── Usuarios (solo SOCIOS) ──────────────────────────────── */}
-      {role === "SOCIOS" && (
-        <Tabs.Screen
-          name="users"
-          options={{
-            title: "Usuarios",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="people-outline" size={size} color={color} />
-            ),
-          }}
-        />
-      )}
+      <Tabs.Screen
+        name="users"
+        options={{
+          href: role === "SOCIOS" ? "users" : null,
+          title: "Usuarios",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people-outline" size={size} color={color} />
+          ),
+        }}
+      />
 
       {/* ── Nuevo ────────────────────────────────────────────── */}
       <Tabs.Screen
