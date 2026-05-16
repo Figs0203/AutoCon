@@ -61,15 +61,31 @@ export default function RootLayout() {
       />
 
       {/* ── Formatos ─────────────────────────────────────────── */}
-      <Tabs.Screen
-        name="formats"
-        options={{
-          title: "Formatos",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="reader-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      {/* ── Formatos (solo SUPERVISOR) ──────────────────────────── */}
+      {role === "SUPERVISOR_TECNICO" && (
+        <Tabs.Screen
+          name="formats"
+          options={{
+            title: "Formatos",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="reader-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
+
+      {/* ── Usuarios (solo SOCIOS) ──────────────────────────────── */}
+      {role === "SOCIOS" && (
+        <Tabs.Screen
+          name="users"
+          options={{
+            title: "Usuarios",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="people-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
 
       {/* ── Nuevo ────────────────────────────────────────────── */}
       <Tabs.Screen
