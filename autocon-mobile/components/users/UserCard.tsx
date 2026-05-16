@@ -50,7 +50,7 @@ export default function UserCard({ email, rol, fecha_registro }: UserCardProps) 
               }}
             >
               <Text style={[styles.texto, { color: Colors.white, fontSize: 11 }]}>
-                {rol === "SUPERVISOR_TECNICO" ? "Supervisor" : rol}
+                {rol === "SUPERVISOR_TECNICO" ? "Supervisor" : "Socio"}
               </Text>
             </View>
             <Text style={[styles.texto, { color: Colors.textSecondary, fontSize: 12 }]}>

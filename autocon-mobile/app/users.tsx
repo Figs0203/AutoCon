@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../src/styles/colors";
 import styles from "../src/styles/global";
-import { getSociosDashboard, getCurrentUser } from "../src/config/ApiServices";
+import { getAllUsers, getCurrentUser } from "../src/config/ApiServices";
 import UsersHeader from "../components/users/UsersHeader";
 import UserCard from "../components/users/UserCard";
 
@@ -48,9 +48,9 @@ export default function UsersScreen() {
             return;
           }
 
-          const dashboardData = await getSociosDashboard();
+          const usersData = await getAllUsers();
           if (!active) return;
-          setSupervisores(dashboardData.supervisores || []);
+          setSupervisores(usersData || []);
         } catch (_error) {
           console.error("Error al cargar supervisores:", _error);
         } finally {
@@ -69,8 +69,8 @@ export default function UsersScreen() {
     setRefreshing(true);
     const init = async () => {
       try {
-        const dashboardData = await getSociosDashboard();
-        setSupervisores(dashboardData.supervisores || []);
+        const usersData = await getAllUsers();
+        setSupervisores(usersData || []);
       } catch (_error) {
         console.error("Error al refrescar:", _error);
       } finally {

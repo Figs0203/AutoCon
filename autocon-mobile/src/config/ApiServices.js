@@ -42,6 +42,7 @@ const ENDPOINTS = {
     LOGOUT: '/users/logout/',
     ME: '/users/me/',
     SOCIOS_DASHBOARD: '/users/socios/dashboard/',
+    ALL_USERS: '/users/all-users/',
     SOCIO_FORMULARIOS: '/formats/socio-formularios/',
 };
 
@@ -205,6 +206,8 @@ export const getCurrentUser = async () => {
 };
 
 export const getSociosDashboard = () => httpServiceAuthGet(ENDPOINTS.SOCIOS_DASHBOARD);
+
+export const getAllUsers = () => httpServiceAuthGet(ENDPOINTS.ALL_USERS);
 
 export const getCachedUser = async () => {
     const raw = await AsyncStorage.getItem(AUTH_USER_KEY);

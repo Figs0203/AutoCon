@@ -9,7 +9,7 @@ export default function UsersHeader() {
     <View style={{ marginBottom: 20 }}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Ionicons name="people" size={28} color={Colors.accent} style={{ marginRight: 8 }} />
-        <Text style={[styles.titulo, { marginBottom: 0 }]}>Supervisores</Text>
+        <Text style={[styles.titulo, { marginBottom: 0 }]}>Usuarios</Text>
       </View>
       <Text style={{ fontSize: 14, color: Colors.textSecondary, marginTop: 8 }}>
         Equipos de trabajo registrados

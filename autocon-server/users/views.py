@@ -118,3 +118,26 @@ def socios_dashboard(request):
         },
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def all_users(request):
+    """Devuelve todos los usuarios registrados (supervisores + socios) con sus roles"""
+    users = User.objects.filter(email__isnull=False).exclude(email="").order_by("email")
+
+    users_data = []
+    for user in users:
+        profile = getattr(user, "profile", None)
+        role = profile.role if profile else None
+
+        users_data.append(
+            {
+                "id": user.id,
+                "email": user.email,
+                "rol": role,
+                "fecha_registro": user.date_joined,
+            }
+        )
+
+    return Response(users_data, status=status.HTTP_200_OK)
