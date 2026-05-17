@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import FormProgressBar from "../../components/formats/FormProgressBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../../src/styles/global";
 import { Formato, ImageInfo, LocalImage } from "../../src/types";
@@ -313,6 +314,81 @@ export default function DetalleFormato() {
     return errors;
   }, [formato, respuestas]);
 
+  // ─── Cálculo de progreso del formulario ─────────────────────────────────────
+  const formProgress = useMemo(() => {
+    if (!formato?.schema?.secciones) return { completed: 0, total: 0 };
+
+    let total = 0;
+    let completed = 0;
+
+    const isFilled = (value: any): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string") return value.trim().length > 0;
+      if (Array.isArray(value)) return value.length > 0;
+      return true;
+    };
+
+    for (const seccion of formato.schema.secciones) {
+      for (const campo of seccion.campos || []) {
+        total++;
+        const value = respuestas[campo.id];
+
+        if (["texto", "fecha", "numero", "seleccion", "aprobacion"].includes(campo.tipo)) {
+          if (isFilled(value)) completed++;
+          continue;
+        }
+
+        if (campo.tipo === "aprobacion_doble") {
+          const revisiones = Array.isArray(value?.revisiones) ? value.revisiones : [];
+          const primera = revisiones[0];
+          const segunda = revisiones[1];
+          const hasRevisiones = (primera === true || primera === false) && (segunda === true || segunda === false);
+          const needsObs = campo.observacion;
+          const hasObs = typeof value?.observacion === "string" && value.observacion.trim().length > 0;
+          if (hasRevisiones && (!needsObs || hasObs)) completed++;
+          continue;
+        }
+
+        if (campo.tipo === "aprobacion_con_fecha") {
+          const conforme = value?.conforme;
+          const fecha = typeof value?.fecha === "string" ? value.fecha.trim() : "";
+          const needsObs = campo.observacion;
+          const hasObs = typeof value?.observacion === "string" && value.observacion.trim().length > 0;
+          if ((conforme === true || conforme === false) && fecha.length > 0 && (!needsObs || hasObs)) completed++;
+          continue;
+        }
+
+        if (campo.tipo === "novedad") {
+          const de = typeof value?.de === "string" ? value.de.trim() : value?.de;
+          const a = typeof value?.a === "string" ? value.a.trim() : value?.a;
+          const obs = typeof value?.observacion === "string" ? value.observacion.trim() : "";
+          if (isFilled(de) && isFilled(a) && obs.length > 0) completed++;
+          continue;
+        }
+
+        if (campo.tipo === "no_conformidad") {
+          const item = typeof value?.item === "string" ? value.item.trim() : "";
+          const solucion = typeof value?.solucion === "string" ? value.solucion.trim() : "";
+          if (item.length > 0 && solucion.length > 0) completed++;
+          continue;
+        }
+
+        if (isFilled(value)) completed++;
+      }
+    }
+
+    // Contar firmas
+    const firmas = Array.isArray(formato.schema?.firmas) ? formato.schema.firmas : [];
+    const storedSignatures = respuestas[SIGNATURES_KEY] || {};
+    for (const firma of firmas) {
+      total++;
+      const signatureValue = typeof storedSignatures?.[firma.id] === "string" ? storedSignatures[firma.id].trim() : "";
+      if (signatureValue) completed++;
+    }
+
+    return { completed, total };
+  }, [formato, respuestas]);
+
   // ─── Manejo de Eliminación de Imágenes en el Servidor ──────────────────────
   const handleServerImageDelete = async (imageId: number) => {
     if (type !== "instance" || !id) return;
@@ -337,9 +413,6 @@ export default function DetalleFormato() {
       return "El nombre es demasiado largo (máximo 150 caracteres).";
     }
 
-    if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-.,()]+$/.test(trimmed)) {
-      return "El nombre contiene caracteres no permitidos.";
-    }
     return null;
   };
 
@@ -526,9 +599,17 @@ export default function DetalleFormato() {
         )}
       </View>
 
-      <Text style={[styles.textoGris, { paddingHorizontal: 16, marginBottom: 16 }]}>
+      <Text style={[styles.textoGris, { paddingHorizontal: 16, marginBottom: 12 }]}>
         {formato.codigo} - {headerStatus()}
       </Text>
+
+      {/* ── Barra de progreso (solo en modo edición) ──────── */}
+      {!readonly && estado !== "ENVIADO" && (
+        <FormProgressBar
+          completed={formProgress.completed}
+          total={formProgress.total}
+        />
+      )}
 
       <View style={{ marginBottom: 40 }} pointerEvents={readonly ? "none" : "auto"}>
         {formato.schema.secciones.map((seccion: any) => (

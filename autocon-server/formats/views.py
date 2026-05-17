@@ -640,7 +640,7 @@ def get_image_from_base64(b64_string):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def socio_formularios(request):
-    """Retorna todos los formularios (ENVIADOS y BORRADORES) para que los Socios puedan revisarlos."""
+    """Retorna los formularios NO archivados para que los Socios puedan revisarlos."""
     profile = getattr(request.user, "profile", None)
     if not profile or profile.role != UserProfile.SOCIOS:
         return Response(
@@ -648,9 +648,8 @@ def socio_formularios(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
-    # Obtener todos los formularios (tanto ENVIADO como BORRADOR)
     formularios = (
-        FormularioInstancia.objects.all()
+        FormularioInstancia.objects.filter(archivado=False)
         .select_related("formato", "usuario")
         .order_by("-fecha")
     )
@@ -667,3 +666,70 @@ def socio_formularios(request):
         for inst in formularios
     ]
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def socio_formularios_archivados(request):
+    """Retorna únicamente los formularios archivados por el Socio."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SOCIOS:
+        return Response(
+            {"detail": "Solo los Socios pueden acceder a esta información"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    formularios = (
+        FormularioInstancia.objects.filter(archivado=True)
+        .select_related("formato", "usuario")
+        .order_by("-fecha")
+    )
+
+    data = [
+        {
+            "id": inst.id,
+            "nombre_personalizado": inst.nombre_personalizado or inst.formato.nombre,
+            "codigo": inst.formato.codigo,
+            "supervisor": inst.usuario.email,
+            "fecha": inst.fecha.isoformat(),
+            "estado": inst.estado,
+        }
+        for inst in formularios
+    ]
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def archivar_formulario(request, pk):
+    """Permite a un Socio archivar o desarchivar un formulario."""
+    profile = getattr(request.user, "profile", None)
+    if not profile or profile.role != UserProfile.SOCIOS:
+        return Response(
+            {"detail": "Solo los Socios pueden archivar formularios"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        instancia = FormularioInstancia.objects.get(pk=pk)
+    except FormularioInstancia.DoesNotExist:
+        return Response(
+            {"detail": "Formulario no encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    nuevo_estado = request.data.get("archivado")
+    if nuevo_estado is None or not isinstance(nuevo_estado, bool):
+        return Response(
+            {"detail": "Se requiere el campo 'archivado' (true/false)"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    instancia.archivado = nuevo_estado
+    instancia.save(update_fields=["archivado"])
+
+    accion = "archivado" if nuevo_estado else "desarchivado"
+    return Response(
+        {"detail": f"Formulario {accion} correctamente", "archivado": nuevo_estado},
+        status=status.HTTP_200_OK,
+    )

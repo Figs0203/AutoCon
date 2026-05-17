@@ -44,6 +44,7 @@ const ENDPOINTS = {
     SOCIOS_DASHBOARD: '/users/socios/dashboard/',
     ALL_USERS: '/users/all-users/',
     SOCIO_FORMULARIOS: '/formats/socio-formularios/',
+    SOCIO_FORMULARIOS_ARCHIVADOS: '/formats/socio-formularios/archivados/',
 };
 
 
@@ -179,6 +180,9 @@ export const deleteAttachedImage = (instanciaId, imagenId) => {
 export const getDashboardStats = () => httpServiceAuthGet(ENDPOINTS.DASHBOARD);
 export const getRecentSubmissions = () => httpServiceAuthGet(ENDPOINTS.RECENT);
 export const getSocioFormularios = () => httpServiceAuthGet(ENDPOINTS.SOCIO_FORMULARIOS);
+export const getSocioFormulariosArchivados = () => httpServiceAuthGet(ENDPOINTS.SOCIO_FORMULARIOS_ARCHIVADOS);
+export const archivarFormulario = (pk) => httpServiceAuthPost(`${ENDPOINTS.SUBMISSIONS}${pk}/archivar/`, { archivado: true });
+export const desarchivarFormulario = (pk) => httpServiceAuthPost(`${ENDPOINTS.SUBMISSIONS}${pk}/archivar/`, { archivado: false });
 export const getSubmissions = () => httpServiceAuthGet(ENDPOINTS.SUBMISSIONS);
 
 export const register = async (email, password, role) => {

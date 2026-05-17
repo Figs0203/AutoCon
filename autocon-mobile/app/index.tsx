@@ -4,6 +4,7 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -19,6 +20,9 @@ import {
   getRecentSubmissions,
   getCurrentUser,
   getSocioFormularios,
+  getSocioFormulariosArchivados,
+  archivarFormulario,
+  desarchivarFormulario,
   logout,
 } from "../src/config/ApiServices";
 import { useFocusEffect } from "expo-router";
@@ -81,6 +85,9 @@ export default function HomeScreen() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [sociosFormularios, setSociosFormularios] = useState<SocioFormulario[]>([]);
+  const [sociosArchivados, setSociosArchivados] = useState<SocioFormulario[]>([]);
+  const [loadingArchived, setLoadingArchived] = useState(false);
+
   const handleLogout = useCallback(async () => {
     try {
       await logout();
@@ -113,10 +120,16 @@ export default function HomeScreen() {
 
     try {
       if (role === "SOCIOS") {
-        const forms = await getSocioFormularios();
+        setLoadingArchived(true);
+        const [forms, archived] = await Promise.all([
+          getSocioFormularios(),
+          getSocioFormulariosArchivados(),
+        ]);
         setSociosFormularios(forms || []);
+        setSociosArchivados(archived || []);
         setStats(null);
         setRecent([]);
+        setLoadingArchived(false);
       } else {
         const [statsData, recentData] = await Promise.all([
           getDashboardStats(),
@@ -144,6 +157,53 @@ export default function HomeScreen() {
     setRefreshing(true);
     fetchData();
   }, [authorized, fetchData]);
+
+  // ── Archivado ──────────────────────────────────────────────
+  const handleArchive = useCallback(async (formId: number) => {
+    // Actualización optimista
+    const prevForms = sociosFormularios;
+    const formToArchive = sociosFormularios.find((f) => f.id === formId);
+    setSociosFormularios((prev) => prev.filter((f) => f.id !== formId));
+    if (formToArchive) {
+      setSociosArchivados((prev) => [formToArchive, ...prev]);
+    }
+
+    try {
+      await archivarFormulario(formId);
+      Alert.alert(
+        "Formulario archivado",
+        "Puedes encontrarlo en la sección de Formularios Archivados."
+      );
+    } catch (error: any) {
+      // Revertir en caso de error
+      setSociosFormularios(prevForms);
+      setSociosArchivados((prev) => prev.filter((f) => f.id !== formId));
+      Alert.alert("Error", error.message || "No se pudo archivar el formulario.");
+    }
+  }, [sociosFormularios]);
+
+  const handleUnarchive = useCallback(async (formId: number) => {
+    // Actualización optimista
+    const prevArchived = sociosArchivados;
+    const formToUnarchive = sociosArchivados.find((f) => f.id === formId);
+    setSociosArchivados((prev) => prev.filter((f) => f.id !== formId));
+    if (formToUnarchive) {
+      setSociosFormularios((prev) => [formToUnarchive, ...prev]);
+    }
+
+    try {
+      await desarchivarFormulario(formId);
+      Alert.alert(
+        "Formulario desarchivado",
+        "El formulario ha sido restaurado al listado principal."
+      );
+    } catch (error: any) {
+      // Revertir en caso de error
+      setSociosArchivados(prevArchived);
+      setSociosFormularios((prev) => prev.filter((f) => f.id !== formId));
+      Alert.alert("Error", error.message || "No se pudo desarchivar el formulario.");
+    }
+  }, [sociosArchivados]);
 
   if (authorized === null) {
     return (
@@ -178,7 +238,13 @@ export default function HomeScreen() {
               <ActivityIndicator size="large" color={Colors.accent} />
             </View>
           ) : role === "SOCIOS" ? (
-            <SociosHomeView forms={sociosFormularios} />
+            <SociosHomeView
+              forms={sociosFormularios}
+              archivedForms={sociosArchivados}
+              loadingArchived={loadingArchived}
+              onArchive={handleArchive}
+              onUnarchive={handleUnarchive}
+            />
           ) : (
             <SupervisorHomeView stats={stats} recent={recent} />
           )}

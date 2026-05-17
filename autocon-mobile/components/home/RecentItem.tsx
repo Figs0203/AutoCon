@@ -17,6 +17,10 @@ interface RecentItemProps {
   onPress?: () => void;
   /** Callback al presionar el botón de eliminar */
   onDelete?: () => void;
+  /** Callback al presionar el botón de archivar */
+  onArchive?: () => void;
+  /** Callback al presionar el botón de desarchivar */
+  onUnarchive?: () => void;
 }
 
 /**
@@ -78,6 +82,8 @@ export default function RecentItem({
   dateLabel,
   onPress,
   onDelete,
+  onArchive,
+  onUnarchive,
 }: RecentItemProps) {
   const badge = getBadgeConfig(status);
 
@@ -107,6 +113,48 @@ export default function RecentItem({
           </View>
         </View>
       </View>
+      {onArchive ? (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onArchive();
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: "#EDE9FE",
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 8,
+          }}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="archive-outline" size={18} color="#7C3AED" />
+        </TouchableOpacity>
+      ) : null}
+      {onUnarchive ? (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onUnarchive();
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: "#DBEAFE",
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 8,
+          }}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="arrow-undo-outline" size={18} color="#2563EB" />
+        </TouchableOpacity>
+      ) : null}
       {onDelete ? (
         <TouchableOpacity
           onPress={(e) => {

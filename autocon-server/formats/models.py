@@ -40,6 +40,10 @@ class FormularioInstancia(models.Model):
         default=BORRADOR,
     )
     fecha = models.DateTimeField(auto_now_add=True)
+    archivado = models.BooleanField(
+        default=False,
+        help_text="Marcado por un Socio para ocultar del listado principal",
+    )
 
     def __str__(self):
         # return f"{self.formato.codigo} — {self.usuario.username} — {self.estado}"
